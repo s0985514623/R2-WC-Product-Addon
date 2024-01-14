@@ -23,20 +23,13 @@ function DefaultPage() {
         <a href="https://reactjs.org" target="_blank" rel="noreferrer noopener">
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
-        <a
-          href="https://wordpress.org"
-          target="_blank"
-          rel="noreferrer noopener"
-        >
+        <a href="https://wordpress.org" target="_blank" rel="noreferrer noopener">
           <img src={wpLogo} className="logo wp" alt="WordPress logo" />
         </a>
       </div>
       <h1>Vite + React + WordPress</h1>
       <div className="flex justify-center mb-8">
-        <button
-          type="button"
-          onClick={() => setCount((theCount) => theCount + 1)}
-        >
+        <button type="button" onClick={() => setCount((theCount) => theCount + 1)}>
           Count is {count}
         </button>
 
@@ -47,9 +40,7 @@ function DefaultPage() {
       <p>
         Edit <code>src/App.tsx</code> and save to test HMR
       </p>
-      <p className="read-the-docs">
-        Click on the Vite, React and WordPress logos to learn more
-      </p>
+      <p className="read-the-docs">Click on the Vite, React and WordPress logos to learn more</p>
 
       {showRestPosts && <GetRestPostsPage />}
     </div>

@@ -5,7 +5,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { renderId1, renderId2 } from '@/utils'
 
 const App1 = React.lazy(() => import('./App1'))
-const App2 = React.lazy(() => import('./App2'))
+
+// const App2 = React.lazy(() => import('./App2'))
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -16,17 +17,19 @@ const queryClient = new QueryClient({
   },
 })
 const id1 = document.getElementById(renderId1)
-const id2 = document.getElementById(renderId2)
+
+// const id2 = document.getElementById(renderId2)
 
 const mapping = [
   {
     el: id1,
     App: App1,
   },
-  {
-    el: id2,
-    App: App2,
-  },
+
+  // {
+  //   el: id2,
+  //   App: App2,
+  // },
 ]
 
 mapping.forEach(({ el, App }) => {

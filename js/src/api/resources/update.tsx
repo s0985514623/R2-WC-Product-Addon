@@ -5,7 +5,7 @@ import { AxiosRequestConfig } from 'axios'
 
 export const updateResource = async ({
   resource,
-  dataProvider = 'wp-rest',
+  dataProvider = 'wp',
   pathParams = [],
   args = {},
   config = undefined,
@@ -19,11 +19,7 @@ export const updateResource = async ({
   config?: AxiosRequestConfig<{ [key: string]: any }> | undefined
 }) => {
   const dataProviderUrlParams = getDataProviderUrlParams(dataProvider)
-  const updateResult = await axios.post(
-    `${apiUrl}${dataProviderUrlParams}${resource}/${pathParams.join('/')}`,
-    args,
-    config,
-  )
+  const updateResult = await axios.post(`${apiUrl}/${dataProviderUrlParams}${resource}/${pathParams.join('/')}`, args, config)
 
   return updateResult
 }

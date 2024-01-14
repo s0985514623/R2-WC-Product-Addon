@@ -4,15 +4,7 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query'
 import { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios'
 import { useAjaxNonce } from '@/hooks'
 
-export const useAjax = (options?: {
-  args?: Omit<TAdminAjaxArgs, 'nonce'>
-  config?: AxiosRequestConfig<{ [key: string]: any }> | undefined
-  mutationOptions?: UseMutationOptions<
-    AxiosResponse,
-    AxiosError,
-    Omit<TAdminAjaxArgs, 'nonce'>
-  >
-}) => {
+export const useAjax = (options?: { args?: Omit<TAdminAjaxArgs, 'nonce'>; config?: AxiosRequestConfig<{ [key: string]: any }> | undefined; mutationOptions?: UseMutationOptions<AxiosResponse, AxiosError, Omit<TAdminAjaxArgs, 'nonce'>> }) => {
   const ajaxNonce = useAjaxNonce()
   const args = options?.args || undefined
   const config = options?.config || undefined
