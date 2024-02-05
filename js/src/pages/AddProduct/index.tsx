@@ -1,5 +1,5 @@
 import { useRef, useCallback } from 'react'
-import { Form } from 'antd'
+import { Form, Spin } from 'antd'
 import Add from './Add'
 import AddedItem from './AddedItem'
 import { addedProductsAtom } from './atoms'
@@ -11,7 +11,6 @@ import SaveButton from './SaveButton'
 import { DndProvider } from 'react-dnd'
 import { HTML5Backend } from 'react-dnd-html5-backend'
 import update from 'immutability-helper'
-import SettingButton from './SettingButton'
 import { SaveFilled } from '@ant-design/icons'
 import usePSMeta from './hooks/usePSMeta'
 import useChangeNotification from './hooks/useChangeNotification'
@@ -30,10 +29,7 @@ const AddProduct = () => {
 
   const productsResult = useGetAddProducts(shop_meta_product_ids)
 
-  const [
-    addedProducts,
-    setAddedProducts,
-  ] = useAtom(addedProductsAtom)
+  const [addedProducts, setAddedProducts] = useAtom(addedProductsAtom)
 
   const [form] = Form.useForm()
   const ref = useRef<HTMLInputElement>(null)
@@ -81,17 +77,17 @@ const AddProduct = () => {
         <div className="flex justify-between mb-4">
           <SaveButton type="primary" icon={<SaveFilled />} disabled={isPSMetaLoading || productsResult?.isFetching || isHandleShopMetaLoading} />
         </div>
-
-        <DndProvider backend={HTML5Backend}>
-          {productsResult?.isLoading && productsResult?.isFetching
-            ? [
-                1,
-                2,
-                3,
-              ].map((i) => <LoadingCard ratio="h-[8rem]" key={i} />)
-            : addedProducts.map((product, i) => renderItem(product, i))}
-        </DndProvider>
-
+        <Spin spinning={productsResult?.isFetching}>
+          <DndProvider backend={HTML5Backend}>
+            {productsResult?.isLoading && productsResult?.isFetching
+              ? [
+                  1,
+                  2,
+                  3,
+                ].map((i) => <LoadingCard ratio="h-[8rem]" key={i} />)
+              : addedProducts.map((product, i) => renderItem(product, i))}
+          </DndProvider>
+        </Spin>
         <Add />
         <input ref={ref} type="hidden" name={`${snake}_meta`} value="" />
       </Form>

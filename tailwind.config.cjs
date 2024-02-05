@@ -5,7 +5,13 @@ module.exports = {
   corePlugins: {
     preflight: false,
   },
-  content: ['./js/src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './js/src/**/*.{js,ts,jsx,tsx}',
+    './inc/custom/class/class-shortcode.php',
+    './inc/custom/class/class-product-addon.php',
+    './inc/templates/single-product/simple.php',
+    './inc/templates/single-product/variable.php',
+  ],
   theme: {
     extend: {
       colors: {

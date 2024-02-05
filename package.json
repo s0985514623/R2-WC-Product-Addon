@@ -7,12 +7,13 @@
     "bootstrap": "npm install && composer install --no-interaction",
     "dev": "vite",
     "prebuild": "echo 'todo: remove console'",
-    "build": "vite build",
+    "build": "vite build && sh release.sh",
     "preview": "vite preview",
     "format": "prettier-eslint --write \"js/src/**/*.tsx\"",
     "lint": "eslint . --ext .ts,.tsx",
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
-    "push": "npm version patch && git push"
+    "push": "npm version patch && git push",
+    "css": "npx tailwindcss -i ./js/src/assets/scss/index.scss -o ./js/src/assets/scss/tmp.scss && sass --no-source-map --style compressed ./js/src/assets/scss/tmp.scss ./js/src/assets/scss/index.css"
   },
   "pre-commit": [
     "lint:fix"

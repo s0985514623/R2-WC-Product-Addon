@@ -10,7 +10,7 @@ const useSave = (form: FormInstance) => {
     mutationOptions: {
       onSuccess: () => {
         notification.success({
-          message: 'Power Shop 儲存成功',
+          message: '加價購商品 儲存成功',
         })
         setIsChange(false)
         notification.destroy('saveNotification')
@@ -47,7 +47,9 @@ const useSave = (form: FormInstance) => {
 
   const handleSave = async () => {
     const allFields = await formatShopMeta({ form })
-    console.log('🚀 ~ allFields:', allFields)
+
+    // console.log('🚀 ~ allFields:', allFields)
+
     mutate({
       action: 'handle_update_post_meta',
       post_id: postId as number,
