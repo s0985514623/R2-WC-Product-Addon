@@ -9,19 +9,19 @@ use J7\WpMyAppPlugin\MyApp\Inc\Bootstrap;
 class Ajax
 {
 
-    const GET_POST_META_ACTION    = 'handle_get_post_meta';
-    const UPDATE_POST_META_ACTION = 'handle_update_post_meta';
-    const HANDLE_ADD_TO_CART      = 'handle_add_to_cart';
+    const GET_POST_META_ACTION     = 'addon_handle_get_post_meta';
+    const UPDATE_POST_META_ACTION  = 'addon_handle_update_post_meta';
+    const addon_handle_add_to_cart = 'addon_handle_add_to_cart';
 
     function __construct()
     {
-        foreach ([ self::GET_POST_META_ACTION, self::UPDATE_POST_META_ACTION, self::HANDLE_ADD_TO_CART ] as $action) {
+        foreach ([ self::GET_POST_META_ACTION, self::UPDATE_POST_META_ACTION, self::addon_handle_add_to_cart ] as $action) {
             \add_action('wp_ajax_' . $action, [ $this, $action . '_callback' ]);
             \add_action('wp_ajax_nopriv_' . $action, [ $this, $action . '_callback' ]);
         }
     }
 
-    public function handle_get_post_meta_callback()
+    public function addon_handle_get_post_meta_callback()
     {
         // Security check
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce');
@@ -42,11 +42,10 @@ class Ajax
         );
 
         \wp_send_json($return);
-
         \wp_die();
     }
 
-    public function handle_update_post_meta_callback()
+    public function addon_handle_update_post_meta_callback()
     {
         // Security check
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce');
@@ -57,13 +56,18 @@ class Ajax
         if (empty($post_id) || empty($meta_key)) {
             return;
         }
-
+        //更新post_meta
         $update_result = \update_post_meta($post_id, $meta_key, $meta_value);
-
+        //更新post
+        // $post_update_result = \wp_update_post(array(
+        //     'ID'         => $post_id,
+        //     'meta_input' => array($meta_key => $meta_value),
+        // ));
         $return = array(
             'message' => 'success',
             'data'    => [
                 'update_result' => $update_result,
+                // 'post_update_result' => $post_update_result,
              ],
         );
 
@@ -71,7 +75,7 @@ class Ajax
 
         \wp_die();
     }
-    public function handle_add_to_cart_callback()
+    public function addon_handle_add_to_cart_callback()
     {
         // Security check
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce', false);
@@ -79,7 +83,7 @@ class Ajax
         $product_id          = filter_var($product_id, FILTER_VALIDATE_INT) ? $product_id : 0;
         $quantity            = filter_var($_POST[ 'quantity' ], FILTER_SANITIZE_NUMBER_INT);
         $quantity            = filter_var($quantity, FILTER_VALIDATE_INT) ? $quantity : 1;
-        $variation_id        = filter_var($_POST[ 'variation_id' ], FILTER_SANITIZE_NUMBER_INT);
+        $variation_id        = filter_var($_POST[ 'variable_id' ], FILTER_SANITIZE_NUMBER_INT);
         $variation_id        = filter_var($variation_id, FILTER_VALIDATE_INT) ? $variation_id : 0;
         $product_addon_price = filter_var($_POST[ 'product_addon_price' ], FILTER_SANITIZE_NUMBER_INT);
         $product_addon_price = filter_var($product_addon_price, FILTER_VALIDATE_INT) ? $product_addon_price : 0;
@@ -92,6 +96,19 @@ class Ajax
         if ($cart_item_key) {
             // WooCommerce的函數，用於獲取更新後的fragments和cart_hash
             \WC_AJAX::get_refreshed_fragments();
+            //debug
+            //     $return = array(
+            //         'message' => 'success',
+            //         'data'    => [
+            //                 'product_id'          => $product_id,
+            //                 'quantity'            => $quantity,
+            //                 'variation_id'        => $variation_id,
+            //                 'product_addon_price' => $product_addon_price,
+            //                 'variable'            => $_POST,
+            //                 'empty'               => empty($variation_id),
+            //          ],
+            // );
+            // \wp_send_json($return);
         } else {
             $return = array(
                 'message' => 'error',
@@ -104,8 +121,8 @@ class Ajax
                     'empty'               => empty($variation_id),
                  ],
             );
+            \wp_send_json($return);
         }
-        wp_send_json($return);
         die();
     }
 }

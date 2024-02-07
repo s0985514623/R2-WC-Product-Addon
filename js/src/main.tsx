@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { renderId1, renderId2 } from '@/utils'
+import { renderId1 } from '@/utils'
 
 const App1 = React.lazy(() => import('./App1'))
 

@@ -17,6 +17,9 @@ class ProductAddon
         \add_action('woocommerce_before_calculate_totals', [ $this, 'set_custom_cart_item_price' ]);
         //ELEMENTOR 計算價格前用到的Filter
         \add_filter('woocommerce_cart_item_price', [ $this, 'ele_custom_cart_item_price' ], 20, 3);
+        //更新商品前，更新商品的 post_meta
+        // \add_action('save_post', [ $this, 'refresh_post_meta_before_update' ]);
+
     }
     function ele_custom_cart_item_price($price, $cart_item, $cart_item_key)
     {
@@ -63,6 +66,9 @@ class ProductAddon
         $handled_shop_meta   = $this->handleShopMeta($product_meta);
         //post_meta 不為空時
         if (!empty($handled_shop_meta) && ($product_type == 'simple' || $product_type == 'variable')) {
+            echo '<div class="productAddonContainer w-full border border-solid border-[#ddd] my-4">';
+            echo '<div class="productAddonTitle text-xl text-[#4562A8] font-bold p-4 bg-[#f9f9f9]">以優惠價加購商品</div>';
+            echo '<div class="productAddonList p-4 pb-0">';
             foreach ($handled_shop_meta as $meta) {
                 //get product
                 $product_addon_id = $meta[ 'productId' ];
@@ -93,6 +99,8 @@ class ProductAddon
                         break;
                 }
             }
+            echo '</div>';
+            echo '</div>';
         }
     }
     /**
@@ -163,5 +171,23 @@ class ProductAddon
         }
 
         return $shop_meta;
+    }
+    //待處理
+    public function refresh_post_meta_before_update($post_id)
+    {
+        $metaValue = get_post_meta($post_id, Bootstrap::SNAKE . '_meta', true);
+        if (!empty($metaValue)) {
+            // unhook this function so it doesn't loop infinitely
+            remove_action('save_post', [ $this, 'refresh_post_meta_before_update' ]);
+            // update the post, which calls save_post again
+            // \update_post_meta($post_id, Bootstrap::SNAKE . '_meta', $metaValue);
+            \wp_update_post(array(
+                'ID'         => $post_id,
+                'meta_input' => array(Bootstrap::SNAKE . '_meta' => $metaValue),
+            ));
+            // re-hook this function
+            add_action('save_post', [ $this, 'refresh_post_meta_before_update' ]);
+        }
+
     }
 }

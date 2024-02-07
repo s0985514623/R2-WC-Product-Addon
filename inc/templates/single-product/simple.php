@@ -37,10 +37,10 @@ if ($product_status === 'publish'):
 		<div class="productAddonPrice">
 			<div class="flex text-xl text-[#4562A8] font-bold">
 				<?php if (!empty($sales_price)): ?>
-				<p class="mb-0 mt-1 opacity-50"><del>NT$ <?=$regular_price?></del></p>
-				<p class="mb-0 mt-1 pl-2 salesPrice">NT$ <?=$sales_price?></p>
+				<p class="mb-0 mt-1 opacity-50"><del>NT$ <?=number_format($regular_price)?></del></p>
+				<p class="mb-0 mt-1 pl-2 salesPrice">NT$ <?=number_format($sales_price)?></p>
 				<?php else: ?>
-				<p class="mb-0 mt-1">NT$ <?=$regular_price?></p>
+				<p class="mb-0 mt-1">NT$ <?=number_format($regular_price)?></p>
 				<?php endif;?>
 			</div>
 		</div>

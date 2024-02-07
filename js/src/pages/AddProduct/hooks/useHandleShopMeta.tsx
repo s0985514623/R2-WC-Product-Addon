@@ -17,6 +17,7 @@ type TUseHandleShopMetaProps = {
  */
 
 const useHandleShopMeta = ({ productsResult, shop_meta }: TUseHandleShopMetaProps) => {
+  // console.log('🚀 ~ shop_meta:', shop_meta)
   const queryClient = useQueryClient()
   const { mutate, ...restUpdateResult } = useUpdate({
     resource: kebab,
@@ -105,6 +106,7 @@ const useHandleShopMeta = ({ productsResult, shop_meta }: TUseHandleShopMetaProp
 }
 
 function getMetaProductType(item: TPSMeta) {
+  // console.log('🚀 ~ item:', item)
   //  因為舊版的可能沒有 productType 屬性，就要用 有沒有 variations 這個 key 來判斷
 
   if (item?.productType) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ArrowsAltOutlined, ShrinkOutlined } from '@ant-design/icons'
 import { Space, Tag, Form, Input } from 'antd'
 import { TProduct, TProductVariation } from '@/types/wcRestApi'
@@ -39,6 +39,19 @@ const Variable: React.FC<{
 
   const productVariations: TProductVariation[] = productVariationsResult?.data?.data ?? []
 
+  const form = Form.useFormInstance()
+
+  useEffect(() => {
+    form.setFieldsValue({
+      [index]: {
+        productId: id,
+        productType: type,
+      },
+    })
+  }, [
+    id,
+    index,
+  ])
   return (
     <>
       <div className="flex justify-between">
@@ -54,7 +67,8 @@ const Variable: React.FC<{
                 0,
                 8,
               ]}
-              wrap>
+              wrap
+            >
               {categories.map((cat) => (
                 <Tag key={cat?.id} color="#2db7f5">
                   {cat?.name}
@@ -82,7 +96,8 @@ const Variable: React.FC<{
           'productId',
         ]}
         initialValue={id}
-        hidden>
+        hidden
+      >
         <Input />
       </Form.Item>
       <Form.Item
@@ -91,7 +106,8 @@ const Variable: React.FC<{
           'productType',
         ]}
         hidden
-        initialValue={type}>
+        initialValue={type}
+      >
         <Input />
       </Form.Item>
 

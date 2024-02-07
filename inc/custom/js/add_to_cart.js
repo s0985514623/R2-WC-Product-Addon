@@ -261,7 +261,7 @@ function clearSelect() {
 
 //加入購物車代碼
 async function addToCart({ _event, data }) {
-  // console.log('🚀 ~ data:', data)
+  console.log('🚀 ~ data:', data)
   // //取得原本文字
   // const defaultText = event.target.innerHTML.hasClass('isLoading')
   // //loading狀態
@@ -276,7 +276,7 @@ async function addToCart({ _event, data }) {
         type: 'POST',
         url: r2_wcpa_data.env.ajaxUrl,
         data: {
-          action: 'handle_add_to_cart',
+          action: 'addon_handle_add_to_cart',
           nonce,
           product_id: data.product_id,
           quantity: data.quantity,
@@ -284,6 +284,7 @@ async function addToCart({ _event, data }) {
           product_addon_price: data.product_addon_price,
         },
         success(res) {
+          console.log('🚀 ~ new res:', res)
           //成功會返回fragments / cart_hash參數
           $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
           //錯誤會返回error:true / product_url參數

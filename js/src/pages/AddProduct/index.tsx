@@ -77,17 +77,16 @@ const AddProduct = () => {
         <div className="flex justify-between mb-4">
           <SaveButton type="primary" icon={<SaveFilled />} disabled={isPSMetaLoading || productsResult?.isFetching || isHandleShopMetaLoading} />
         </div>
-        <Spin spinning={productsResult?.isFetching}>
-          <DndProvider backend={HTML5Backend}>
-            {productsResult?.isLoading && productsResult?.isFetching
-              ? [
-                  1,
-                  2,
-                  3,
-                ].map((i) => <LoadingCard ratio="h-[8rem]" key={i} />)
-              : addedProducts.map((product, i) => renderItem(product, i))}
-          </DndProvider>
-        </Spin>
+        <DndProvider backend={HTML5Backend}>
+          {productsResult?.isLoading && productsResult?.isFetching
+            ? [
+                1,
+                2,
+                3,
+              ].map((i) => <LoadingCard ratio="h-[8rem]" key={i} />)
+            : addedProducts.map((product, i) => renderItem(product, i))}
+        </DndProvider>
+
         <Add />
         <input ref={ref} type="hidden" name={`${snake}_meta`} value="" />
       </Form>

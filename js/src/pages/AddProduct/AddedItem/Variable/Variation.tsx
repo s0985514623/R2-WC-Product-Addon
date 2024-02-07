@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { Form, InputNumber, Tooltip, Input } from 'antd'
 import { TProductVariation, TSimpleAttribute } from '@/types/wcRestApi'
-import defaultImage from '@/assets/images/defaultImage.jpg'
+// import defaultImage from '@/assets/images/defaultImage.jpg'
 import { nanoid } from 'nanoid'
 import { TPSMeta, TPSVariation } from '@/types'
 
@@ -38,7 +38,8 @@ const Variation: React.FC<{
   ))
   const form = Form.useFormInstance()
 
-  const imageSrc = variation?.image?.src ?? defaultImage
+  const imageSrc = variation?.image?.src ?? ''
+  // ??defaultImage
   const { salesPrice, regularPrice } = getPrices(matchVariation, variation)
   const extraBuyerCount = matchVariation?.extraBuyerCount || 0
 

@@ -1,6 +1,6 @@
 import { useMany } from '@/hooks'
 import { renderHTML } from '@/utils'
-import defaultImage from '@/assets/images/defaultImage.jpg'
+// import defaultImage from '@/assets/images/defaultImage.jpg'
 import { TPost, TImage } from '@/types'
 
 const GetPostsPage = () => {
@@ -35,20 +35,18 @@ const GetPostsPage = () => {
         <>
           <div className="grid xl:grid-cols-4 md:grid-cols-3 grid-cols-2 gap-4 px-4 my-4">
             {posts.map((post) => {
-              const image = images?.find(
-                (theImage) => theImage?.id === post?.featured_media,
-              )
+              const image = images?.find((theImage) => theImage?.id === post?.featured_media)
               const title = post?.title?.rendered || ''
               const id = post?.id || ''
 
               return (
-                <div
-                  key={id}
-                  className="border border-solid border-gray-300 rounded-xl overflow-hidden aspect-[3/4]"
-                >
+                <div key={id} className="border border-solid border-gray-300 rounded-xl overflow-hidden aspect-[3/4]">
                   <img
                     alt={title}
-                    src={image?.source_url || defaultImage}
+                    src={
+                      image?.src || ''
+                      // || defaultImage
+                    }
                     className="w-full"
                   />
                   <div className="p-4">

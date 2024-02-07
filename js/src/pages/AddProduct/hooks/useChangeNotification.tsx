@@ -17,7 +17,6 @@ const useChangeNotification = (form: FormInstance) => {
 
   const handleSetCustomFieldValue = async () => {
     // Form 改變時，寫入自訂欄位
-
     if (fieldNode) {
       const sortedAllFields = await formatShopMeta({
         form,

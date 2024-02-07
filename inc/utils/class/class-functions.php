@@ -130,86 +130,14 @@ class Functions
         } catch (\Throwable $th) {
             $shop_meta = [  ];
         }
-        function get_product_data(array $meta): array
-        {
-            $meta = (array) $meta ?? [  ];
-            if (empty($meta[ 'productId' ])) {
-                return [  ];
-            }
 
-            $product          = \wc_get_product($meta[ 'productId' ]);
-            $feature_image_id = $product->get_image_id();
-            $attachment_ids   = [ $feature_image_id, ...$product->get_gallery_image_ids() ];
-            $images           = [  ];
-            foreach ($attachment_ids as $attachment_id) {
-                $images[  ] = \wp_get_attachment_url($attachment_id);
-            }
-            // format data
-            $product_data                           = [  ];
-            $product_data[ 'id' ]                   = $meta[ 'productId' ];
-            $product_data[ 'type' ]                 = $product->get_type();
-            $product_data[ 'name' ]                 = $product->get_name();
-            $product_data[ 'images' ]               = $images;
-            $product_data[ 'is_sold_individually' ] = $product->is_sold_individually();
-            $product_data[ 'is_in_stock' ]          = $product->is_in_stock();
-            $product_data[ 'is_purchasable' ]       = $product->is_purchasable();
-            $product_data[ 'total_sales' ]          = $product->get_total_sales();
+        //原本的寫法
+        //$products = array_map(__NAMESPACE__ . "\get_product_data", $shop_meta);
 
-            if ('simple' === $product->get_type()) {
-                $product_data[ 'regularPrice' ] = $meta[ 'regularPrice' ];
-                $product_data[ 'salesPrice' ]   = $meta[ 'salesPrice' ];
-            }
-            if ('variable' === $product->get_type() && !empty($meta[ 'variations' ])) {
-                $variation_meta                         = $meta[ 'variations' ]; //  Undefined array key "variations"
-                $product_data[ 'variations' ]           = [  ];
-                $product_data[ 'variation_attributes' ] = $product->get_variation_attributes();
-
-                foreach ($product->get_available_variations() as $key => $variation) {
-                    $variation_id                                           = $variation[ 'variation_id' ];
-                    $variation_product                                      = \wc_get_product($variation_id);
-                    $theMeta                                                = find($variation_meta, [ 'variationId' => $variation_id ]);
-                    $product_data[ 'variations' ][ $key ]                   = $variation;
-                    $product_data[ 'variations' ][ $key ][ 'attributes' ]   = format_attributes($variation[ 'attributes' ]);
-                    $product_data[ 'variations' ][ $key ][ 'regularPrice' ] = $theMeta[ 'regularPrice' ];
-                    $product_data[ 'variations' ][ $key ][ 'salesPrice' ]   = $theMeta[ 'salesPrice' ];
-                    $product_data[ 'variations' ][ $key ][ 'stock' ]        = [
-                        'manageStock'   => $variation_product->get_manage_stock(),
-                        'stockQuantity' => $variation_product->get_stock_quantity(),
-                        'stockStatus'   => $variation_product->get_stock_status(),
-                     ];
-                }
-            }
-
-            return $product_data;
-        }
-
-        function format_attributes($attributes)
-        {
-            try {
-                //code...
-                $formatAttributes = new \stdClass();
-                foreach ($attributes as $key => $value) {
-                    // 檢查是否以 "attribute_" 開頭
-                    if (strpos($key, "attribute_") === 0) {
-                        // 去除 "attribute_" 前綴
-                        $key = substr($key, strlen("attribute_"));
-                    }
-
-                    // 檢查是否以 "pa_" 開頭
-                    if (strpos($key, "pa_") !== 0) {
-                        // 如果不是，進行 urldecode 轉換
-                        $key = urldecode($key);
-                    }
-                    $formatAttributes->$key = urldecode($value);
-                }
-                return $formatAttributes;
-            } catch (\Throwable $th) {
-                //throw $th;
-                return $attributes;
-            }
-        }
-
-        $products = array_map(__NAMESPACE__ . "\get_product_data", $shop_meta);
+        //新的寫法 但用static可以考慮實際調用的類別=>這個會比較好,因為考慮到繼承
+        $products = array_map(array(static::class, 'get_product_data'), $shop_meta);
+        //用self會依照實際調用的類別,如果方法是在父類別被定義,則會使用父類別的方法
+        // $products = array_map(array('self', 'get_product_data'), $shop_meta);
 
         $products_info = [
             'products' => $products,
@@ -217,5 +145,82 @@ class Functions
          ];
 
         return $products_info;
+    }
+    public static function get_product_data(array $meta): array
+    {
+        $meta = (array) $meta ?? [  ];
+        if (empty($meta[ 'productId' ])) {
+            return [  ];
+        }
+
+        $product          = \wc_get_product($meta[ 'productId' ]);
+        $feature_image_id = $product->get_image_id();
+        $attachment_ids   = [ $feature_image_id, ...$product->get_gallery_image_ids() ];
+        $images           = [  ];
+        foreach ($attachment_ids as $attachment_id) {
+            $images[  ] = \wp_get_attachment_url($attachment_id);
+        }
+        // format data
+        $product_data                           = [  ];
+        $product_data[ 'id' ]                   = $meta[ 'productId' ];
+        $product_data[ 'type' ]                 = $product->get_type();
+        $product_data[ 'name' ]                 = $product->get_name();
+        $product_data[ 'images' ]               = $images;
+        $product_data[ 'is_sold_individually' ] = $product->is_sold_individually();
+        $product_data[ 'is_in_stock' ]          = $product->is_in_stock();
+        $product_data[ 'is_purchasable' ]       = $product->is_purchasable();
+        $product_data[ 'total_sales' ]          = $product->get_total_sales();
+
+        if ('simple' === $product->get_type()) {
+            $product_data[ 'regularPrice' ] = $meta[ 'regularPrice' ];
+            $product_data[ 'salesPrice' ]   = $meta[ 'salesPrice' ];
+        }
+        if ('variable' === $product->get_type() && !empty($meta[ 'variations' ])) {
+            $variation_meta                         = $meta[ 'variations' ]; //  Undefined array key "variations"
+            $product_data[ 'variations' ]           = [  ];
+            $product_data[ 'variation_attributes' ] = $product->get_variation_attributes();
+
+            foreach ($product->get_available_variations() as $key => $variation) {
+                $variation_id                                           = $variation[ 'variation_id' ];
+                $variation_product                                      = \wc_get_product($variation_id);
+                $theMeta                                                = find($variation_meta, [ 'variationId' => $variation_id ]);
+                $product_data[ 'variations' ][ $key ]                   = $variation;
+                $product_data[ 'variations' ][ $key ][ 'attributes' ]   = self::format_attributes($variation[ 'attributes' ]);
+                $product_data[ 'variations' ][ $key ][ 'regularPrice' ] = $theMeta[ 'regularPrice' ];
+                $product_data[ 'variations' ][ $key ][ 'salesPrice' ]   = $theMeta[ 'salesPrice' ];
+                $product_data[ 'variations' ][ $key ][ 'stock' ]        = [
+                    'manageStock'   => $variation_product->get_manage_stock(),
+                    'stockQuantity' => $variation_product->get_stock_quantity(),
+                    'stockStatus'   => $variation_product->get_stock_status(),
+                 ];
+            }
+        }
+
+        return $product_data;
+    }
+    public static function format_attributes($attributes)
+    {
+        try {
+            //code...
+            $formatAttributes = new \stdClass();
+            foreach ($attributes as $key => $value) {
+                // 檢查是否以 "attribute_" 開頭
+                if (strpos($key, "attribute_") === 0) {
+                    // 去除 "attribute_" 前綴
+                    $key = substr($key, strlen("attribute_"));
+                }
+
+                // 檢查是否以 "pa_" 開頭
+                if (strpos($key, "pa_") !== 0) {
+                    // 如果不是，進行 urldecode 轉換
+                    $key = urldecode($key);
+                }
+                $formatAttributes->$key = urldecode($value);
+            }
+            return $formatAttributes;
+        } catch (\Throwable $th) {
+            //throw $th;
+            return $attributes;
+        }
     }
 }

@@ -33,12 +33,7 @@ export function useAjaxGetPostMeta<T>(props: TProps) {
     setMeta,
   ] = useState<T | undefined>(undefined)
 
-  const result = useQuery<
-    AxiosResponse<any, any>,
-    AxiosError<unknown, any>,
-    TData,
-    any
-  >({
+  const result = useQuery<AxiosResponse<any, any>, AxiosError<unknown, any>, TData, any>({
     queryKey: [
       'get_post_meta',
       props.post_id,
@@ -47,7 +42,7 @@ export function useAjaxGetPostMeta<T>(props: TProps) {
     queryFn: (fnProps?: TFnProps) =>
       adminAjax({
         args: {
-          action: 'handle_get_post_meta',
+          action: 'addon_handle_get_post_meta',
           nonce: ajaxNonce,
           post_id: fnProps?.post_id || props.post_id,
           meta_key: fnProps?.meta_key || props.meta_key,

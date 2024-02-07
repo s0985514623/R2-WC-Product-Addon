@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Select, Button, Typography } from 'antd'
+import { Select, Button, Typography, Empty } from 'antd'
 import { useMany } from '@/hooks'
 import { TProduct, TProductCat } from '@/types/wcRestApi'
 import { renderHTML, getProductImageSrc } from '@/utils'
@@ -50,11 +50,36 @@ const Add = () => {
   })
 
   const productCats: TProductCat[] = productCatsResult?.data?.data ?? []
-
-  const productCartItems = productCats.map((cat) => ({
-    value: cat.id,
-    label: cat?.name ?? '未知分類',
-  }))
+  //先取得頂部分類
+  const productCatsParent = productCats.filter((catFilter) => catFilter.parent === 0)
+  // const productCartItems = productCats.map((cat) => ({
+  //   value: cat.id,
+  //   label: cat?.name ?? '未知分類',
+  // }))
+  const productCartItemsGroup = productCatsParent.map((parentCat) => {
+    //如果有子分類
+    if (productCats.filter((catFilter) => catFilter.parent === parentCat.id).length !== 0) {
+      return {
+        label: parentCat.name,
+        options: productCats
+          .filter((catFilter) => catFilter.parent === parentCat.id)
+          .map((cat) => ({
+            value: cat.id,
+            label: cat?.name ?? '未知分類',
+          })),
+      }
+    }
+    return {
+      label: parentCat.name,
+      options: [
+        {
+          value: parentCat.id,
+          label: parentCat?.name ?? '未知分類',
+        },
+      ],
+    }
+  })
+  console.log('🚀 ~ productCartItemsGroup:', productCartItemsGroup)
 
   const handleChangeProductCat = (value: number) => {
     setSelectedCatId(value)
@@ -110,21 +135,7 @@ const Add = () => {
       <p className="mb-2 text-[1rem] font-semibold">選擇要加入的商品</p>
 
       <div className="flex md:flex-row flex-col">
-        <Select
-          loading={productCatsResult.isLoading}
-          disabled={productCatsResult.isLoading}
-          className="w-full md:mr-4 mb-2 md:mb-0"
-          allowClear
-          size="large"
-          showSearch
-          placeholder="選擇商品分類"
-          optionFilterProp="children"
-          optionLabelProp="label"
-          filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-          filterSort={(optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())}
-          options={productCartItems}
-          onChange={handleChangeProductCat}
-        />
+        <Select loading={productCatsResult.isLoading} disabled={productCatsResult.isLoading} className="w-full md:mr-4 mb-2 md:mb-0" allowClear size="large" showSearch placeholder="選擇商品分類" optionFilterProp="children" optionLabelProp="label" filterOption={(input, option) => (option?.label ?? '').toLowerCase().includes(input.toLowerCase())} filterSort={(optionA, optionB) => (optionA?.label ?? '').toLowerCase().localeCompare((optionB?.label ?? '').toLowerCase())} options={productCartItemsGroup} onChange={handleChangeProductCat} />
         <Select
           loading={productResult.isLoading && !!selectedCatId}
           disabled={!selectedCatId || productResult.isLoading}

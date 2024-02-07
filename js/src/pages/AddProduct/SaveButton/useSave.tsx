@@ -6,6 +6,7 @@ import { kebab, postId, snake, formatShopMeta } from '@/utils'
 
 const useSave = (form: FormInstance) => {
   const setIsChange = useSetAtom(isChangeAtom)
+  //改用ajax 打是因為wc跟wp的api 會查不到post id
   const { mutate, isLoading } = useAjax({
     mutationOptions: {
       onSuccess: () => {
@@ -47,11 +48,8 @@ const useSave = (form: FormInstance) => {
 
   const handleSave = async () => {
     const allFields = await formatShopMeta({ form })
-
-    // console.log('🚀 ~ allFields:', allFields)
-
     mutate({
-      action: 'handle_update_post_meta',
+      action: 'addon_handle_update_post_meta',
       post_id: postId as number,
       meta_key: `${snake}_meta`,
       meta_value: JSON.stringify(allFields),

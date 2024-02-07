@@ -1,4 +1,5 @@
 <?php
+use J7\WpMyAppPlugin\MyApp\Inc\Functions;
 //解構賦值 $args
 [
     'product'             => $product,
@@ -45,7 +46,8 @@ $max_regular_price = empty($regular_price_arr) ? '' : max($regular_price_arr);
 //     $sales_price   = $product->get_sale_price();
 // }
 
-$product_status = $product->get_status();
+$product_status            = $product->get_status();
+$format_default_attributes = Functions::format_attributes($product->get_default_attributes());
 if ($product_status === 'publish'):
 ?>
 <div class="variableProduct productAddon flex w-full pl-6 pb-5 relative"
@@ -66,9 +68,12 @@ if ($product_status === 'publish'):
 					</th>
 					<td class="border-0">
 						<select class="" data-label_key="<?=$label?>">
-							<option value="" selected>請選取一個選項</option>
+							<option value="">請選取一個選項</option>
 							<?php foreach ($valueArray as $value): ?>
-							<option value="<?=urldecode($value)?>"><?=urldecode($value)?></option>
+							<option value="<?=urldecode($value)?>"
+								<?=!empty($format_default_attributes) && $format_default_attributes->$label == urldecode($value) ? 'selected' : 'none'?>>
+								<?=urldecode($value)?></option>
+
 							<?php endforeach;?>
 						</select>
 					</td>
@@ -84,22 +89,25 @@ if ($product_status === 'publish'):
 			<div class="flex flex-wrap text-xl text-[#4562A8] font-bold gap-2">
 				<?php if ($max === $min && !empty($min)): ?>
 				<?php if ($max === $max_regular_price): ?>
-				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=$min?>">NT$ <?=$min?></p>
-				<?php else: ?>
-				<p class="mb-0 mt-1 opacity-50 regularPrice" data-original_price="<?=$max_regular_price?>">
-					<del>NT$ <?=$max_regular_price?></del>
+				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=$min?>">NT$ <?=number_format($min)?>
 				</p>
-				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=$min?>">NT$ <?=$min?></p>
+				<?php else: ?>
+				<p class="mb-0 mt-1 opacity-50 regularPrice"
+					data-original_price="<?=($max_regular_price)?>">
+					<del>NT$ <?=number_format($max_regular_price)?></del>
+				</p>
+				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=$min?>">NT$ <?=number_format($min)?>
+				</p>
 				<?php endif;?>
 				<?php else: ?>
 				<?php if (!empty($max_regular_price)): ?>
 				<p class="mb-0 mt-1 opacity-50 regularPrice" data-original_price="<?=$max_regular_price?>">
-					<del>NT$ <?=$max_regular_price?></del>
+					<del>NT$ <?=number_format($max_regular_price)?></del>
 				</p>
 				<?php endif;?>
 				<?php if (!empty($max)): ?>
 				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=$min . ' – NT$ ' . $max?>">
-					NT$<?=$min?> – NT$<?=$max?>
+					NT$<?=number_format($min)?> – NT$<?=number_format($max)?>
 				</p>
 				<?php endif;?>
 				<?php endif;?>
