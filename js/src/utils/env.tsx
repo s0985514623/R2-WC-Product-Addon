@@ -18,4 +18,4 @@ export const permalink = window?.[APP_DOMAIN]?.env?.permalink || '/'
 
 export const apiTimeout = import.meta.env.API_TIMEOUT || '30000'
 
-export const power_shop_meta_meta_id = window?.appData?.settings?.power_shop_meta_meta_id
+export const power_shop_meta_meta_id = window?.[APP_DOMAIN]?.settings?.power_shop_meta_meta_id

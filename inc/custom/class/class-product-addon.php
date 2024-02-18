@@ -10,15 +10,28 @@ class ProductAddon
 {
     public function __construct()
     {
+        //後台設定選單渲染
         \add_filter('woocommerce_product_data_tabs', [ $this, 'product_settings_tabs' ]);
+        //後台頁面渲染
         \add_action('woocommerce_product_data_panels', [ $this, 'render_app' ]);
+        //前台商品頁渲染
         \add_action('woocommerce_before_add_to_cart_button', [ $this, 'render_product' ]);
         //在購物車計算前，設定商品價格
         \add_action('woocommerce_before_calculate_totals', [ $this, 'set_custom_cart_item_price' ]);
         //ELEMENTOR 計算價格前用到的Filter
         \add_filter('woocommerce_cart_item_price', [ $this, 'ele_custom_cart_item_price' ], 20, 3);
-        //更新商品前，更新商品的 post_meta
-        // \add_action('save_post', [ $this, 'refresh_post_meta_before_update' ]);
+
+        //購物車驗證=如果主商品不在,加購商品要移除
+        \add_action('woocommerce_cart_updated', [ $this, 'woocommerce_cart_updated' ]);
+        //結帳頁下方的加價購商品,要加上若有相同的加購商品出現則以價格低者出現
+        \add_action('woocommerce_after_cart_table', [ $this, 'render_cart' ]);
+        //載入的js將type改成module
+        \add_filter('script_loader_tag', function ($tag, $handle, $src) {
+            if ('add_to_cart' === $handle || 'cart_add_to_cart' === $handle) {
+                $tag = '<script type="module" src="' . esc_url($src) . '"></script>';
+            }
+            return $tag;
+        }, 10, 3);
 
     }
     function ele_custom_cart_item_price($price, $cart_item, $cart_item_key)
@@ -47,13 +60,20 @@ class ProductAddon
         );
         return $tabs;
     }
-    //後台頁面渲染
+    /**
+     * 後台頁面渲染
+     *
+     * @return void
+     */
     public function render_app()
     {
         echo '<div id="' . Bootstrap::RENDER_ID_1 . '" class="panel woocommerce_options_panel hidden">';
         echo '</div>';
     }
-    //前台商品頁渲染
+    /**
+     * 前台商品頁渲染
+     * @return void
+     */
     function render_product()
     {
         //載入js
@@ -104,6 +124,124 @@ class ProductAddon
         }
     }
     /**
+     * 商品頁渲染
+     *
+     * @return void
+     */
+    function render_cart()
+    {
+        //載入js
+        \wp_enqueue_script('cart_add_to_cart', Bootstrap::get_plugin_url() . '/inc/custom/js/cart_add_to_cart.js', array('jquery'), false, true);
+
+        $cart_items         = WC()->cart->cart_contents;
+        $cartData           = [  ];
+        $cart_products_info = [  ];
+
+        foreach ($cart_items as $product) {
+            //取得產品ID
+            $productID = $product[ 'data' ]->get_id();
+            //取得post_meta資料
+            $product_meta_string = \get_post_meta($productID, Bootstrap::SNAKE . '_meta', true);
+            $product_meta        = Functions::json_parse($product_meta_string, [  ], true);
+            $handled_shop_meta   = $this->handleShopMeta($product_meta);
+
+            //post_meta 不為空時且product id 不存在cart_items中
+            if (!empty($handled_shop_meta)) {
+                $products_info                             = Functions::get_products_info($productID);
+                $cart_products_info[ 'products_info' ][  ] = $products_info;
+                foreach ($handled_shop_meta as $meta) {
+                    //get product
+                    $product_addon_id = $meta[ 'productId' ];
+                    $product_addon    = \wc_get_product($product_addon_id);
+                    $cartData[  ]     = [
+                        'product' => $product_addon,
+                        'meta'    => $meta,
+                     ];
+                }
+            }
+        }
+        //需要排除的商品=>如果購物車裡面有加購商品,則不顯示加購商品
+        $filterProducts = Functions::filter_same_elements($cartData, $cart_items);
+        //將資料傳入js
+        \wp_localize_script(Bootstrap::KEBAB, Bootstrap::SNAKE . '_cart_data', $cart_products_info);
+
+        //渲染畫面
+        //默認不執行
+        $executeCode = false;
+        foreach ($filterProducts as $item) {
+            if (!empty($item[ 'meta' ])) {
+                $executeCode = true; // 如果有一个非空的bundleProduct，设置为true
+                break; // 可以提前结束循环，因为不需要继续检查
+            }
+        }
+        if ($executeCode) {
+            ?>
+<div
+	class="productAddonWrap w-full bg-[#F6F6F6] border border-solid border-[#EDEDED] px-[15px] py-[10px]">
+	<h3 class="goBuyTitle md:text-xl text-sm">尚有更多精彩優惠等著你！目前未享用：</h3>
+</div>
+<div id="productAddonList"
+	class="w-full grid grid-cols-1 md:grid-cols-3 text-[#333333] font-semibold border border-t-0 border-solid border-[#EDEDED] mb-5 ">
+	<?php
+foreach ($filterProducts as $item) {
+                switch ($item[ 'meta' ][ 'productType' ]) {
+                    case 'variable':
+                        \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/variable.php', false, [
+                            'product'             => $item[ 'product' ],
+                            'meta'                => $item[ 'meta' ],
+                            'variationAttributes' => $item[ 'product' ]->get_variation_attributes(false),
+                         ]);
+                        break;
+                    case 'simple':
+                        \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
+                            'product' => $item[ 'product' ],
+                            'meta'    => $item[ 'meta' ],
+                         ]);
+                        break;
+                    default:
+                        \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
+                            'product' => $item[ 'product' ],
+                            'meta'    => $item[ 'meta' ],
+                         ]);
+                        break;
+                }
+            }
+            ?>
+</div>
+<?php
+}
+    }
+
+    /**
+     * 購物車驗證=如果主商品不在,加購商品要移除
+     * 判斷購物車中的加價商品cart_item_data是否符合條件=>是否具有parent_product_id值
+     * 如果有parent_product_id值,則判斷購物車中是否有parent_product_id值的商品
+     * 如果沒有,則移除購物車中的加價商品
+     */
+    public function woocommerce_cart_updated()
+    {
+        global $woocommerce;
+        //取得購物車中的商品
+        $cart_items = $woocommerce->cart->get_cart();
+        error_log(print_r($cart_items, true));
+        if (!empty($cart_items)) {
+            //循環購物車中商品
+            foreach ($cart_items as $cart_item_key => $cart_item) {
+                //如果購物車商品中有parent_product_id值
+                if (isset($cart_item[ 'parent_product_id' ])) {
+                    //取得parent_product_id值
+                    $parent_product_id = $cart_item[ 'parent_product_id' ];
+                    //取得購物車中的商品id陣列
+                    $ids_cart_items = array_column($cart_items, 'product_id');
+                    //如果購物車中沒有parent_product_id值的商品,則移除購物車中的加價商品
+                    if (!in_array($parent_product_id, $ids_cart_items)) {
+                        WC()->cart->remove_cart_item($cart_item_key);
+                    }
+                }
+            }
+        }
+    }
+    /**
      * 檢查 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
      * 如果不一致，就更新 shop_meta 裡面的 data
      *
@@ -151,7 +289,6 @@ class ProductAddon
                             "variationId"  => $variation[ 'variation_id' ],
                             "regularPrice" => $variation[ 'display_regular_price' ],
                             "salesPrice"   => $variation[ 'display_price' ],
-
                          ];
                     }
 
@@ -171,23 +308,5 @@ class ProductAddon
         }
 
         return $shop_meta;
-    }
-    //待處理
-    public function refresh_post_meta_before_update($post_id)
-    {
-        $metaValue = get_post_meta($post_id, Bootstrap::SNAKE . '_meta', true);
-        if (!empty($metaValue)) {
-            // unhook this function so it doesn't loop infinitely
-            remove_action('save_post', [ $this, 'refresh_post_meta_before_update' ]);
-            // update the post, which calls save_post again
-            // \update_post_meta($post_id, Bootstrap::SNAKE . '_meta', $metaValue);
-            \wp_update_post(array(
-                'ID'         => $post_id,
-                'meta_input' => array(Bootstrap::SNAKE . '_meta' => $metaValue),
-            ));
-            // re-hook this function
-            add_action('save_post', [ $this, 'refresh_post_meta_before_update' ]);
-        }
-
     }
 }

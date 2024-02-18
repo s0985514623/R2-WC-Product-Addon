@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowsAltOutlined, ShrinkOutlined } from '@ant-design/icons'
 import { Space, Tag, Form, Input } from 'antd'
 import { TProduct, TProductVariation } from '@/types/wcRestApi'
-import { getProductImageSrc, getProductTypeLabel, renderHTML } from '@/utils'
+import { getProductImageSrc, getProductTypeLabel, renderHTML, postId } from '@/utils'
 import { PSMetaAtom } from '../../atoms'
 import { useAtomValue } from 'jotai'
 import { useMany } from '@/hooks'
@@ -44,6 +44,7 @@ const Variable: React.FC<{
   useEffect(() => {
     form.setFieldsValue({
       [index]: {
+        parentProductId: postId,
         productId: id,
         productType: type,
       },
@@ -90,6 +91,16 @@ const Variable: React.FC<{
           <RemoveIcon productId={id} />
         </div>
       </div>
+      <Form.Item
+        name={[
+          index,
+          'parentProductId',
+        ]}
+        hidden
+        initialValue={postId}
+      >
+        <Input />
+      </Form.Item>
       <Form.Item
         name={[
           index,

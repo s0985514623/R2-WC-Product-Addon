@@ -79,9 +79,100 @@ if (!empty($default_attributes))
 
 if ($product_status === 'publish'):
 ?>
-<div class="variableProduct productAddon flex w-full pl-6 pb-5 relative"
+<div class="variableProduct productAddon py-5 px-[15px] grid grid-cols-5"
 	data-product_addon_id="<?=$product_addon_id?>" data-variable_id="<?=$variable_id?>"
 	data-parent_product_id="<?=$parent_product_id?>">
+	<div class="productAddonImg aspect-square w-full col-span-2">
+		<img src="<?=$img_src[ 0 ]?>" alt="<?=$name?>">
+	</div>
+	<div class="productAddonInfo px-[15px] flex flex-col justify-between col-span-3 ">
+		<div class="flex flex-col gap-2">
+			<span class="productAddonTitle md:text-base text-sm"><?=$name?></span>
+			<table class="font-bold text-base">
+				<tbody>
+					<?php foreach ($variationAttributes as $label => $valueArray): ?>
+					<tr>
+						<th class="border-0 hidden">
+							<label class="text-nowrap" for="<?=$label?>"><?=\wc_attribute_label($label)?></label>
+						</th>
+						<td class="border-0 p-2">
+							<select class="" data-label_key="<?=$label?>">
+								<option value="">請選取一個選項</option>
+								<?php foreach ($valueArray as $value): ?>
+								<option value="<?=urldecode($value)?>"
+									<?=!empty($default_attributes) && $default_attributes->$label == urldecode($value) ? 'selected' : 'none'?>>
+									<?=urldecode($value)?></option>
+
+								<?php endforeach;?>
+							</select>
+						</td>
+					</tr>
+					<?php endforeach;?>
+				</tbody>
+			</table>
+			<div class="clearLink hidden font-bold text-sm"
+				data-product_addon_id="<?=$product_addon_id?>"><a href="javascript:void(0);"
+					class="!underline">清除</a>
+			</div>
+			<div class="productAddonPrice">
+				<div class="flex flex-wrap text-sm text-[#4562A8] font-bold gap-2 ">
+					<?php if ($max === $min && !empty($min)): ?>
+					<?php if ($max === $max_regular_price): ?>
+					<p class="mb-0 mt-1 salesPrice tracking-normal"
+						data-original_price="<?=number_format($min)?>">NT$
+						<?=number_format($min)?>
+					</p>
+					<?php else: ?>
+					<p class="mb-0 mt-1 opacity-50 regularPrice tracking-normal"
+						data-original_price="<?=number_format($max_regular_price)?>">
+						<del>NT$ <?=number_format($max_regular_price)?></del>
+					</p>
+					<p class="mb-0 mt-1 salesPrice tracking-normal"
+						data-original_price="<?=number_format($min)?>">NT$
+						<?=number_format($min)?>
+					</p>
+					<?php endif;?>
+					<?php else: ?>
+					<?php if (!empty($max_regular_price)): ?>
+					<p class="mb-0 mt-1 opacity-50 regularPrice tracking-normal"
+						data-original_price="<?=number_format($max_regular_price)?>">
+						<del>NT$ <?=number_format($max_regular_price)?></del>
+					</p>
+					<?php endif;?>
+					<?php if (!empty($variable_id)): ?>
+					<p class="mb-0 mt-1 salesPrice tracking-normal"
+						data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
+						NT$<?=number_format($salesPrice)?>
+					</p>
+					<?php else: ?>
+					<?php if (!empty($max)): ?>
+					<p class="mb-0 mt-1 salesPrice tracking-normal"
+						data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
+						NT$<?=number_format($min)?> – NT$<?=number_format($max)?>
+					</p>
+					<?php endif;?>
+					<?php endif;?>
+					<?php endif;?>
+				</div>
+			</div>
+		</div>
+		<div
+			class="productAddToCart flex gap-1 w-fit whitespace-nowrap items-center cursor-pointer rounded text-center py-1.5 px-2.5 bg-black  border border-black border-solid hover:bg-[#dddddd]">
+			<a class="!text-white flex gap-1 items-center"><svg
+					class="loading hidden animate-spin fill-white" xmlns="http://www.w3.org/2000/svg"
+					height="1em" viewBox="0 0 512 512">
+					<path
+						d="M222.7 32.1c5 16.9-4.6 34.8-21.5 39.8C121.8 95.6 64 169.1 64 256c0 106 86 192 192 192s192-86 192-192c0-86.9-57.8-160.4-137.1-184.1c-16.9-5-26.6-22.9-21.5-39.8s22.9-26.6 39.8-21.5C434.9 42.1 512 140 512 256c0 141.4-114.6 256-256 256S0 397.4 0 256C0 140 77.1 42.1 182.9 10.6c16.9-5 34.8 4.6 39.8 21.5z">
+					</path>
+				</svg>加入購物車</a>
+		</div>
+	</div>
+</div>
+
+
+<!-- old -->
+<!-- <div class="variableProduct productAddon flex w-full pl-6 pb-5 relative"
+	data-product_addon_id="<?=$product_addon_id?>" data-variable_id="<?=$variable_id?>">
 	<div class="productAddonImg w-1/5 ">
 		<input class="peer absolute left-0 top-5 " type="checkbox" />
 		<img class="peer-checked:border-[5px] peer-checked:border-solid peer-checked:border-[#4562A8] "
@@ -156,5 +247,5 @@ if ($product_status === 'publish'):
 			</div>
 		</div>
 	</div>
-</div>
+</div> -->
 <?php endif;?>

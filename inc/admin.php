@@ -63,8 +63,8 @@ class Bootstrap
             }
 
         } else {
-            // match front-end post_type slug 'product'
-            if (strpos($_SERVER[ 'REQUEST_URI' ], 'product') === false) {
+            // match front-end post_type slug 'product' or 'cart' or 'checkout'
+            if (!(strpos($_SERVER[ 'REQUEST_URI' ], 'product') == true || strpos($_SERVER[ 'REQUEST_URI' ], 'cart') == true || strpos($_SERVER[ 'REQUEST_URI' ], 'checkout') == true)) {
                 return;
             }
 

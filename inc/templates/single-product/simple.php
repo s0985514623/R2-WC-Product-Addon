@@ -11,6 +11,7 @@ $name    = $product->get_name();
 
 //解構賦值 $meta
 [
+	'parentProductId'=>$parent_product_id,
     'productId'    => $product_id,
     'regularPrice' => $regular_price,
     'salesPrice'   => $sales_price,
@@ -26,7 +27,7 @@ $product_status = $product->get_status();
 if ($product_status === 'publish'):
 ?>
 <div class="simpleProduct productAddon flex w-full pl-6 pb-5 relative"
-	data-product_addon_id="<?=$product_id?>">
+	data-product_addon_id="<?=$product_id?>" data-parent_product_id="<?=$parent_product_id?>">
 	<div class="productAddonImg w-1/5 ">
 		<input class="peer absolute left-0 top-5 " type="checkbox" />
 		<img class="peer-checked:border-[5px] peer-checked:border-solid peer-checked:border-[#4562A8] "
@@ -40,7 +41,7 @@ if ($product_status === 'publish'):
 				<p class="mb-0 mt-1 opacity-50"><del>NT$ <?=number_format($regular_price)?></del></p>
 				<p class="mb-0 mt-1 pl-2 salesPrice">NT$ <?=number_format($sales_price)?></p>
 				<?php else: ?>
-				<p class="mb-0 mt-1">NT$ <?=number_format($regular_price)?></p>
+				<p class="mb-0 mt-1 salesPrice">NT$ <?=number_format($regular_price)?></p>
 				<?php endif;?>
 			</div>
 		</div>

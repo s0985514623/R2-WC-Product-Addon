@@ -5,6 +5,7 @@ import AddedItem from './AddedItem'
 import { addedProductsAtom } from './atoms'
 import { useAtom } from 'jotai'
 import { snake, power_shop_meta_meta_id as metaId } from '@/utils'
+
 import { TProduct } from '@/types/wcRestApi'
 import { LoadingWrap, LoadingCard } from '@/components/PureComponents'
 import SaveButton from './SaveButton'
@@ -64,12 +65,12 @@ const AddProduct = () => {
         ],
       }),
     )
+    handleFormChange()
   }, [])
 
   const renderItem = useCallback((product: TProduct, index: number) => {
     return <AddedItem key={product.id} index={index} product={product} moveCard={moveCard} />
   }, [])
-
   return (
     <div className="p-4">
       {(isPSMetaLoading || isHandleShopMetaLoading) && <LoadingWrap />}
@@ -78,7 +79,7 @@ const AddProduct = () => {
           <SaveButton type="primary" icon={<SaveFilled />} disabled={isPSMetaLoading || productsResult?.isFetching || isHandleShopMetaLoading} />
         </div>
         <DndProvider backend={HTML5Backend}>
-          {productsResult?.isLoading && productsResult?.isFetching
+          {productsResult?.isLoading || productsResult?.isFetching
             ? [
                 1,
                 2,
@@ -88,7 +89,6 @@ const AddProduct = () => {
         </DndProvider>
 
         <Add />
-        <input ref={ref} type="hidden" name={`${snake}_meta`} value="" />
       </Form>
     </div>
   )

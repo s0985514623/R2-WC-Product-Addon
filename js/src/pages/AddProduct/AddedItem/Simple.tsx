@@ -1,6 +1,6 @@
 import { Space, Tag, Form, InputNumber, Input } from 'antd'
 import { TProduct } from '@/types/wcRestApi'
-import { getProductImageSrc, getProductTypeLabel, renderHTML } from '@/utils'
+import { getProductImageSrc, getProductTypeLabel, renderHTML, postId } from '@/utils'
 import { PSMetaAtom } from '../atoms'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
@@ -44,6 +44,7 @@ const Simple: React.FC<{
   useEffect(() => {
     form.setFieldsValue({
       [index]: {
+        parentProductId: postId,
         productId: id,
         regularPrice,
         salesPrice,
@@ -84,6 +85,16 @@ const Simple: React.FC<{
 
             <div className="text-[1rem] mt-2 mb-0">{name}</div>
             <div className="flex">
+              <Form.Item
+                name={[
+                  index,
+                  'parentProductId',
+                ]}
+                hidden
+                initialValue={postId}
+              >
+                <Input />
+              </Form.Item>
               <Form.Item
                 name={[
                   index,

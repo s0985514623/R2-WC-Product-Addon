@@ -58,16 +58,12 @@ class Ajax
         }
         //更新post_meta
         $update_result = \update_post_meta($post_id, $meta_key, $meta_value);
-        //更新post
-        // $post_update_result = \wp_update_post(array(
-        //     'ID'         => $post_id,
-        //     'meta_input' => array($meta_key => $meta_value),
-        // ));
+
         $return = array(
             'message' => 'success',
             'data'    => [
                 'update_result' => $update_result,
-                // 'post_update_result' => $post_update_result,
+                'meta_value'    => $meta_value,
              ],
         );
 
@@ -79,6 +75,8 @@ class Ajax
     {
         // Security check
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce', false);
+        $parent_product_id   = filter_var($_POST[ 'parent_product_id' ], FILTER_SANITIZE_NUMBER_INT);
+        $parent_product_id   = filter_var($parent_product_id, FILTER_VALIDATE_INT) ? $parent_product_id : 0;
         $product_id          = filter_var($_POST[ 'product_id' ], FILTER_SANITIZE_NUMBER_INT);
         $product_id          = filter_var($product_id, FILTER_VALIDATE_INT) ? $product_id : 0;
         $quantity            = filter_var($_POST[ 'quantity' ], FILTER_SANITIZE_NUMBER_INT);
@@ -92,7 +90,7 @@ class Ajax
         }
 
         // WC_Cart::add_to_cart( $product_id, $quantity, $variation_id, $variation, $cart_item_data );
-        $cart_item_key = \WC()->cart->add_to_cart($product_id, $quantity, $variation_id, array(), array('product_addon_price' => $product_addon_price));
+        $cart_item_key = \WC()->cart->add_to_cart($product_id, $quantity, $variation_id, array(), array('product_addon_price' => $product_addon_price, 'parent_product_id' => $parent_product_id));
         if ($cart_item_key) {
             // WooCommerce的函數，用於獲取更新後的fragments和cart_hash
             \WC_AJAX::get_refreshed_fragments();

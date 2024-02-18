@@ -79,7 +79,6 @@ const Add = () => {
       ],
     }
   })
-  console.log('🚀 ~ productCartItemsGroup:', productCartItemsGroup)
 
   const handleChangeProductCat = (value: number) => {
     setSelectedCatId(value)

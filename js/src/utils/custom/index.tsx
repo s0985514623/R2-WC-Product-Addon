@@ -29,7 +29,6 @@ export const formatShopMeta = async ({ form }: { form: FormInstance<any> }) => {
   return new Promise((resolve) => {
     setTimeout(() => {
       const allFields_obj = form.getFieldsValue()
-      // console.log('🚀 ~ allFields_obj:', allFields_obj)
       const allFields = Object.values(allFields_obj) as TPSMeta[]
       resolve(allFields)
     }, 1000)
