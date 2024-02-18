@@ -75,18 +75,47 @@ class Ajax
     {
         // Security check
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce', false);
-        $parent_product_id   = filter_var($_POST[ 'parent_product_id' ], FILTER_SANITIZE_NUMBER_INT);
-        $parent_product_id   = filter_var($parent_product_id, FILTER_VALIDATE_INT) ? $parent_product_id : 0;
-        $product_id          = filter_var($_POST[ 'product_id' ], FILTER_SANITIZE_NUMBER_INT);
-        $product_id          = filter_var($product_id, FILTER_VALIDATE_INT) ? $product_id : 0;
-        $quantity            = filter_var($_POST[ 'quantity' ], FILTER_SANITIZE_NUMBER_INT);
-        $quantity            = filter_var($quantity, FILTER_VALIDATE_INT) ? $quantity : 1;
-        $variation_id        = filter_var($_POST[ 'variable_id' ], FILTER_SANITIZE_NUMBER_INT);
-        $variation_id        = filter_var($variation_id, FILTER_VALIDATE_INT) ? $variation_id : 0;
-        $product_addon_price = filter_var($_POST[ 'product_addon_price' ], FILTER_SANITIZE_NUMBER_INT);
-        $product_addon_price = filter_var($product_addon_price, FILTER_VALIDATE_INT) ? $product_addon_price : 0;
-        if (empty($product_id)) {
-            return;
+        $parent_product_id = filter_var($_POST[ 'parent_product_id' ], FILTER_SANITIZE_NUMBER_INT);
+        $parent_product_id = filter_var($parent_product_id, FILTER_VALIDATE_INT) ? $parent_product_id : 0;
+        $product_id        = filter_var($_POST[ 'product_id' ], FILTER_SANITIZE_NUMBER_INT);
+        $product_id        = filter_var($product_id, FILTER_VALIDATE_INT) ? $product_id : 0;
+        $quantity          = filter_var($_POST[ 'quantity' ], FILTER_SANITIZE_NUMBER_INT);
+        $quantity          = filter_var($quantity, FILTER_VALIDATE_INT) ? $quantity : 1;
+        $variation_id      = filter_var($_POST[ 'variable_id' ], FILTER_SANITIZE_NUMBER_INT);
+        $variation_id      = filter_var($variation_id, FILTER_VALIDATE_INT) ? $variation_id : 0;
+
+        //後端取得金額
+        $product_meta_string = \get_post_meta($parent_product_id, Bootstrap::SNAKE . '_meta', true);
+        $product_meta        = Functions::json_parse($product_meta_string, [  ], true);
+        $productArray        = array_filter($product_meta, function ($v) use ($product_id) {
+            return $v[ 'productId' ] == $product_id;
+        });
+        $productArray        = reset($productArray);
+        $productType         = $productArray[ 'productType' ] ?? '';
+        $product_addon_price = null;
+        if ($productType == 'variable') {
+            $product_addon_price = array_filter($productArray[ 'variations' ], function ($v) use ($variation_id) {
+                return $v[ 'variationId' ] == $variation_id;
+            }) ?? null;
+            $product_addon_price = reset($product_addon_price)[ 'salesPrice' ];
+        } else if ($productType == 'simple') {
+            $product_addon_price = $productArray[ 'salesPrice' ] ?? null;
+        }
+
+        if (empty($product_id) || !isset($product_addon_price)) {
+            $return = array(
+                'message' => 'error',
+                'data'    => [
+                    'productType'         => $productArray,
+                    'product_id'          => $product_id,
+                    'quantity'            => $quantity,
+                    'variation_id'        => $variation_id,
+                    'product_addon_price' => $product_addon_price,
+                    'variable'            => $_POST,
+                    'empty'               => empty($variation_id),
+                 ],
+            );
+            \wp_send_json($return);
         }
 
         // WC_Cart::add_to_cart( $product_id, $quantity, $variation_id, $variation, $cart_item_data );

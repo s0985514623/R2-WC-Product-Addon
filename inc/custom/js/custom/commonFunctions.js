@@ -28,7 +28,8 @@ export const r2_wcpa_handleChange = (select, variableProductInfo) => {
   //如果所有的select都有值
   if (hasNoEmptyValues(selectedObj)) {
     //循環變體判斷是否屬性相同
-    const isCheckVariable = variableProductInfo.variations.filter((element) => {
+    const variationsArray = typeof variableProductInfo.variations === 'object' ? Object.values(variableProductInfo.variations) : variableProductInfo.variations
+    const isCheckVariable = variationsArray.filter((element) => {
       //如果選擇的屬性和變體的屬性相同,執行updatePrice並返回true跳出迴圈
       if (isEquivalent(selectedObj, element.attributes)) {
         //將選擇的變體id存入productAddon
@@ -235,7 +236,6 @@ export const addToCart = async ({ _event, data }) => {
           product_id: data.product_id,
           quantity: data.quantity,
           variable_id: data.variable_id ?? 0,
-          product_addon_price: data.product_addon_price,
         },
         success(res) {
           //TODO 上線後刪除
@@ -245,6 +245,7 @@ export const addToCart = async ({ _event, data }) => {
           //錯誤會返回error:true / product_url參數
         },
         error(error) {
+          console.log('🚀 ~ error:', error)
           //接上r2-member-filter外掛的class-user-is-login:未登入時返回登入視窗
           //如果已經有登入視窗就不再重複添加
           if ($('body').find('.noLoginPup').length > 0) {

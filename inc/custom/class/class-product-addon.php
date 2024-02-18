@@ -132,10 +132,10 @@ class ProductAddon
     {
         //載入js
         \wp_enqueue_script('cart_add_to_cart', Bootstrap::get_plugin_url() . '/inc/custom/js/cart_add_to_cart.js', array('jquery'), false, true);
-
-        $cart_items         = WC()->cart->cart_contents;
-        $cartData           = [  ];
-        $cart_products_info = [  ];
+        global $woocommerce;
+        //取得購物車中的商品
+        $cart_items = $woocommerce->cart->get_cart();
+        $cartData   = [  ];
 
         foreach ($cart_items as $product) {
             //取得產品ID
@@ -147,13 +147,10 @@ class ProductAddon
 
             //post_meta 不為空時且product id 不存在cart_items中
             if (!empty($handled_shop_meta)) {
-                $products_info                             = Functions::get_products_info($productID);
-                $cart_products_info[ 'products_info' ][  ] = $products_info;
                 foreach ($handled_shop_meta as $meta) {
                     //get product
-                    $product_addon_id = $meta[ 'productId' ];
-                    $product_addon    = \wc_get_product($product_addon_id);
-                    $cartData[  ]     = [
+                    $product_addon = Functions::get_product_data($meta);
+                    $cartData[  ]  = [
                         'product' => $product_addon,
                         'meta'    => $meta,
                      ];
@@ -162,8 +159,9 @@ class ProductAddon
         }
         //需要排除的商品=>如果購物車裡面有加購商品,則不顯示加購商品
         $filterProducts = Functions::filter_same_elements($cartData, $cart_items);
+
         //將資料傳入js
-        \wp_localize_script(Bootstrap::KEBAB, Bootstrap::SNAKE . '_cart_data', $cart_products_info);
+        \wp_localize_script(Bootstrap::KEBAB, Bootstrap::SNAKE . '_cart_data', $filterProducts);
 
         //渲染畫面
         //默認不執行
@@ -187,20 +185,20 @@ foreach ($filterProducts as $item) {
                 switch ($item[ 'meta' ][ 'productType' ]) {
                     case 'variable':
                         \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/variable.php', false, [
-                            'product'             => $item[ 'product' ],
+                            'product'             => $item[ 'product' ][ 'productObj' ],
                             'meta'                => $item[ 'meta' ],
-                            'variationAttributes' => $item[ 'product' ]->get_variation_attributes(false),
+                            'variationAttributes' => $item[ 'product' ][ 'productObj' ]->get_variation_attributes(false),
                          ]);
                         break;
                     case 'simple':
                         \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
-                            'product' => $item[ 'product' ],
+                            'product' => $item[ 'product' ][ 'productObj' ],
                             'meta'    => $item[ 'meta' ],
                          ]);
                         break;
                     default:
                         \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
-                            'product' => $item[ 'product' ],
+                            'product' => $item[ 'product' ][ 'productObj' ],
                             'meta'    => $item[ 'meta' ],
                          ]);
                         break;
@@ -218,12 +216,13 @@ foreach ($filterProducts as $item) {
      * 如果有parent_product_id值,則判斷購物車中是否有parent_product_id值的商品
      * 如果沒有,則移除購物車中的加價商品
      */
+
     public function woocommerce_cart_updated()
     {
         global $woocommerce;
         //取得購物車中的商品
         $cart_items = $woocommerce->cart->get_cart();
-        error_log(print_r($cart_items, true));
+        // error_log(print_r($cart_items, true));
         if (!empty($cart_items)) {
             //循環購物車中商品
             foreach ($cart_items as $cart_item_key => $cart_item) {

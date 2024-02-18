@@ -164,6 +164,7 @@ class Functions
         }
         // format data
         $product_data                           = [  ];
+        $product_data[ 'productObj' ]           = $product;
         $product_data[ 'id' ]                   = $meta[ 'productId' ];
         $product_data[ 'type' ]                 = $product->get_type();
         $product_data[ 'name' ]                 = $product->get_name();
@@ -235,6 +236,7 @@ class Functions
     {
         // 去重 及 取價格低
         $filteredProducts = [  ];
+
         //判斷arr1 中的[ 'meta' ][ 'productId' ]是否具有相同的id值 ,如果有則取價格低的
         foreach ($arr1 as $product) {
             //簡易商品處理方式
@@ -262,28 +264,29 @@ class Functions
                     foreach ($product[ 'meta' ][ 'variations' ] as $value) {
                         // 檢查是否已經有相同的variationId
                         if (isset($filteredProducts[ $productId ][ "meta" ][ "variations" ][ $value[ 'variationId' ] ])) {
-
                             // 比較salesPrice，保留較低的那個
                             if ($filteredProducts[ $productId ][ "meta" ][ "variations" ][ $value[ 'variationId' ] ][ 'salesPrice' ] > $value[ 'salesPrice' ]) {
-                                $filteredProducts[ $productId ][ "meta" ][ "variations" ][ $value[ 'variationId' ] ] = $value;
+                                $filteredProducts[ $productId ][ "meta" ][ "parentProductId" ]                                          = $product[ 'meta' ][ "parentProductId" ];
+                                $filteredProducts[ $productId ][ "meta" ][ "variations" ][ $value[ 'variationId' ] ]                    = $value;
+                                $filteredProducts[ $productId ][ "product" ][ "variations" ][ $value[ 'variationId' ] ][ 'salesPrice' ] = $value[ 'salesPrice' ];
                             }
                         } else {
+                            echo '這邊不會執行';
                             // 如果沒有相同的productId，直接添加到結果數組中
                             $filteredProducts[ $productId ][ "meta" ][ "variations" ][ $value[ 'variationId' ] ] = $value;
-
                         }
                     }
                 } else {
                     //篩選原始陣列中的元素排除variations key 值
-                    // $filteredProducts[ $productId ] = array_filter($product, function ($key) {
-                    //     // 檢查key是否不等於特定值
-                    //     return $key !== "variations";
-                    // }, ARRAY_FILTER_USE_KEY);
                     $filteredProducts[ $productId ] = $product;
                     unset($filteredProducts[ $productId ][ 'meta' ][ 'variations' ]);
+                    unset($filteredProducts[ $productId ][ 'product' ][ 'variations' ]);
                     //重新賦予具有variationId的key值
                     foreach ($product[ 'meta' ][ 'variations' ] as $value) {
                         $filteredProducts[ $productId ][ "meta" ][ "variations" ][ $value[ 'variationId' ] ] = $value;
+                    }
+                    foreach ($product[ 'product' ][ 'variations' ] as $value) {
+                        $filteredProducts[ $productId ][ "product" ][ "variations" ][ $value[ 'variation_id' ] ] = $value;
                     }
                 }
             }

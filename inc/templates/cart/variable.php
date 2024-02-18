@@ -56,6 +56,7 @@ if (!empty($default_attributes))
 {
     // 獲取所有變體
     $get_variations = $product->get_available_variations();
+
     foreach ($get_variations as $variation) {
         $match = true; // 假設找到匹配
         foreach ($default_attributes as $attribute => $value) {

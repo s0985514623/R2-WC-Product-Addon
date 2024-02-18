@@ -37,7 +37,6 @@ jQuery(document).ready(function ($) {
           product_id: product_addon_id,
           quantity: 1,
           variable_id,
-          product_addon_price: parseInt($(item).find('.productAddonPrice .salesPrice').text().replace('NT$', '').replace(',', ''), 10),
         }
         addToCart({ event, data })
       }
@@ -49,7 +48,6 @@ jQuery(document).ready(function ($) {
           parent_product_id,
           product_id: product_addon_id,
           quantity: 1,
-          product_addon_price: parseInt($(item).find('.productAddonPrice .salesPrice').text().replace('NT$', '').replace(',', ''), 10),
         }
         addToCart({ event, data })
       }
