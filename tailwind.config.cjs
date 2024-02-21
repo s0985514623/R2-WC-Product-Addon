@@ -14,6 +14,7 @@ module.exports = {
     './inc/templates/cart/simple.php',
     './inc/templates/cart/variable.php',
     './inc/templates/cart/index.php',
+    './inc/templates/googleLogin.php',
     './inc/custom/bundles/php/produce-bundles.php',
     './inc/custom/js/add_to_cart.js',
   ],

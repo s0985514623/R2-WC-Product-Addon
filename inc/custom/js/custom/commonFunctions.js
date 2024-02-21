@@ -416,8 +416,8 @@ export const clickAddToCartBtn = (event) => {
         },
         //加入購物車失敗
         function (error) {
-          console.log('🚀 ~ 加入購物車失敗，秀請登入彈窗')
-          //接上r2-member-filter外掛的class-user-is-login:未登入時返回登入視窗
+          // console.log('🚀 ~ 加入購物車失敗，秀請登入彈窗', error)
+          //整合未登入時返回登入視窗templates
           event.target.innerHTML = defaultText
           //如果已經有登入視窗就不再重複添加
           if ($('body').find('.noLoginPup').length > 0) {
@@ -426,17 +426,8 @@ export const clickAddToCartBtn = (event) => {
             LoginPup.removeClass('animate__fadeOutRight')
           } else {
             // 從 response 中獲取 HTML 內容
-            const responseText = error.responseText
-            // 使用 jQuery 創建一個虛擬元素來解析 HTML
-            const virtualElement = $('<div>').html(responseText)
-            // 提取 <div> 元素
-            const divElement = virtualElement.find('.noLoginPup')
-            // 提取 <script> 元素=>第一段是tailwindCss CDN 第二段是JS
-            const scriptElement = virtualElement.find('script')
-            // 將 <div> 元素添加到 body 中
-            $('body').append(divElement)
-            // $("body").append(`${scriptElement[0].outerHTML}`);
-            $('body').append(`<script>${scriptElement[1].innerHTML}</script>`)
+            const responseJSON = error.responseJSON
+            $('body').append(responseJSON)
           }
         },
       )

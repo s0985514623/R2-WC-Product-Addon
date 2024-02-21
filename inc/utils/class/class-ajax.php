@@ -192,6 +192,15 @@ class Ajax
     {
         // Security check
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce', false);
+        //如果未登入就加入購物車則檔下來強迫用Google登入
+        if (!\is_user_logged_in()) {
+            ob_start();
+            include_once Bootstrap::get_plugin_dir() . 'inc/templates/googleLogin.php';
+            $loginPup = ob_get_clean();
+            status_header(400);
+            wp_send_json($loginPup);
+            wp_die();
+        }
         $_POST_items = $_POST[ 'items' ];
         if (!empty($_POST_items)) {
             foreach ($_POST_items as $value) {

@@ -4,14 +4,13 @@ import { r2_wcpa_handleChange, clearSelect, getAjaxNonce, addToCart } from './cu
 /**加價購商品選擇與加入購物車方法 */
 
 jQuery(document).ready(function ($) {
-  const productInfo = window.r2_wcpa_cart_data
   //加購可變商品選項改變
   $(document).on('change', '.variableProduct select', function () {
     const select = $(this)
     const variableProductId = $(this).parents('.productAddon').data('product_addon_id')
-    const variableProductInfo = Object.keys(productInfo).reduce((acc, key) => {
+    const variableProductInfo = Object.keys(window.r2_wcpa_cart_data).reduce((acc, key) => {
       if (key.includes(variableProductId)) {
-        acc = productInfo[key]
+        acc = window.r2_wcpa_cart_data[key]
       }
       return acc
     }, {})
