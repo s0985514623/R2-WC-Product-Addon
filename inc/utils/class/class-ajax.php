@@ -194,14 +194,6 @@ class Ajax
         \check_ajax_referer(Bootstrap::KEBAB, 'nonce', false);
         $_POST_items = $_POST[ 'items' ];
         if (!empty($_POST_items)) {
-            // $return = array(
-            //     'message' => 'test',
-            //     'data'    => [
-            //         '$_POST'       => $_POST,
-            //         '$_POST_items' => $_POST_items,
-            //      ],
-            // );
-            // \wp_send_json($return);
             foreach ($_POST_items as $value) {
                 $parent_product_id = filter_var($value[ 'parent_product_id' ] ?? 0, FILTER_SANITIZE_NUMBER_INT);
                 $parent_product_id = filter_var($parent_product_id, FILTER_VALIDATE_INT) ? $parent_product_id : 0;
@@ -257,7 +249,6 @@ class Ajax
                 } else {
                     //跳過只能購買一個的商品
                     $max_purchase_quantity = \wc_get_product($product_id)->get_max_purchase_quantity();
-
                     if ($max_purchase_quantity == 1) {
                         //獲取購物車中的商品數量
                         $cart          = WC()->cart->get_cart();

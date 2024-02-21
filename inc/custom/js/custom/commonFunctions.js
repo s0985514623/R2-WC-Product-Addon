@@ -339,15 +339,27 @@ export const addToCart = async (data, nonce) => {
 export const clickAddToCartBtn = (event) => {
   event.preventDefault()
   $(event.target).prop('disabled', true)
+
   const product_id = $(event.target).siblings('input[name="variation_id"]').val() ?? $(event.target).val()
   const quantity = $(event.target).siblings('.quantity').find('input[name="quantity"]').val() ?? 1
+  //主商品對象
+  const data = {
+    product_id,
+    quantity,
+  }
+
+  //判斷當前網址是否帶有查詢參數parentProductId
+  const urlParams = new URLSearchParams(window.location.search)
+  const parentProductId = urlParams.get('parentProductId')
+  // 如果parentProductId不为null，重新添加數據到data對象
+  if (parentProductId !== null) {
+    data.parent_product_id = parentProductId
+    data.product_id = $(event.target).siblings('input[name="product_id"]').val() ?? $(event.target).val()
+    data.variable_id = $(event.target).siblings('input[name="variation_id"]').val() ?? 0
+  }
+
   //收集購物車資料，後端用foreach處理
-  const data = [
-    {
-      product_id,
-      quantity,
-    },
-  ]
+  const dataArray = [data]
 
   //取得原本文字
   const defaultText = event.target.innerHTML
@@ -374,7 +386,7 @@ export const clickAddToCartBtn = (event) => {
           variable_id,
         }
         //將加購商品資料加入dataArray
-        data.push(addonData)
+        dataArray.push(addonData)
       }
       //如果該加購商品為簡單商品
       else if ($(item).hasClass('simpleProduct')) {
@@ -386,7 +398,7 @@ export const clickAddToCartBtn = (event) => {
           quantity: 1,
         }
         //將加購商品資料加入dataArray
-        data.push(addonData)
+        dataArray.push(addonData)
       }
     }
   }
@@ -395,7 +407,8 @@ export const clickAddToCartBtn = (event) => {
     //取得nonce後執行加入購物車
     function (nonce) {
       //加入購物車
-      addToCart(data, nonce).then(
+      console.log('dataArray', dataArray)
+      addToCart(dataArray, nonce).then(
         //加入購物車成功
         function (res) {
           event.target.innerHTML = defaultText
