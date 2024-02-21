@@ -120,36 +120,36 @@ if ($product_status === 'publish'):
 
 				<?php if ($max === $min && !empty($min)): ?>
 				<?php if ($max === $max_regular_price): ?>
-				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=number_format($min)?>">NT$
+				<span class="mb-0 mt-1 salesPrice" data-original_price="<?=number_format($min)?>">NT$
 					<?=number_format($min)?>
-				</p>
+				</span>
 				<?php else: ?>
-				<p class="mb-0 mt-1 opacity-50 regularPrice"
+				<span class="mb-0 mt-1 opacity-50 regularPrice"
 					data-original_price="<?=number_format($max_regular_price)?>">
 					<del>NT$ <?=number_format($max_regular_price)?></del>
-				</p>
-				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=number_format($min)?>">NT$
+				</span>
+				<span class="mb-0 mt-1 salesPrice" data-original_price="<?=number_format($min)?>">NT$
 					<?=number_format($min)?>
-				</p>
+				</span>
 				<?php endif;?>
 				<?php else: ?>
 				<?php if (!empty($max_regular_price)): ?>
-				<p class="mb-0 mt-1 opacity-50 regularPrice"
+				<span class="mb-0 mt-1 opacity-50 regularPrice"
 					data-original_price="<?=number_format($max_regular_price)?>">
 					<del>NT$ <?=number_format($max_regular_price)?></del>
-				</p>
+				</span>
 				<?php endif;?>
 				<?php if (!empty($variable_id)): ?>
-				<p class="mb-0 mt-1 salesPrice"
+				<span class="mb-0 mt-1 salesPrice"
 					data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
 					NT$<?=number_format($salesPrice)?>
-				</p>
+				</span>
 				<?php else: ?>
 				<?php if (!empty($max)): ?>
-				<p class="mb-0 mt-1 salesPrice"
+				<span class="mb-0 mt-1 salesPrice"
 					data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
 					NT$<?=number_format($min)?> – NT$<?=number_format($max)?>
-				</p>
+				</span>
 				<?php endif;?>
 				<?php endif;?>
 				<?php endif;?>

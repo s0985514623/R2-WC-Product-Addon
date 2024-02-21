@@ -21,5 +21,8 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/inc/admin.php';
 
+//整入舊得bundle代碼
+require_once __DIR__ . '/inc/custom/bundles/php/produce-bundles.php';
+
 $instance = new Bootstrap();
 $instance->init();

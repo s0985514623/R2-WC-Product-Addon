@@ -11,10 +11,10 @@ $name    = $product->get_name();
 
 //解構賦值 $meta
 [
-	'parentProductId'=>$parent_product_id,
-    'productId'    => $product_id,
-    'regularPrice' => $regular_price,
-    'salesPrice'   => $sales_price,
+    'parentProductId' => $parent_product_id,
+    'productId'       => $product_id,
+    'regularPrice'    => $regular_price,
+    'salesPrice'      => $sales_price,
  ] = $meta;
 
 if (empty($regular_price) && empty($sales_price)) {
@@ -38,10 +38,10 @@ if ($product_status === 'publish'):
 		<div class="productAddonPrice">
 			<div class="flex text-xl text-[#4562A8] font-bold">
 				<?php if (!empty($sales_price)): ?>
-				<p class="mb-0 mt-1 opacity-50"><del>NT$ <?=number_format($regular_price)?></del></p>
-				<p class="mb-0 mt-1 pl-2 salesPrice">NT$ <?=number_format($sales_price)?></p>
+				<span class="mb-0 mt-1 opacity-50"><del>NT$ <?=number_format($regular_price)?></del></span>
+				<span class="mb-0 mt-1 pl-2 salesPrice">NT$ <?=number_format($sales_price)?></span>
 				<?php else: ?>
-				<p class="mb-0 mt-1 salesPrice">NT$ <?=number_format($regular_price)?></p>
+				<span class="mb-0 mt-1 salesPrice">NT$ <?=number_format($regular_price)?></span>
 				<?php endif;?>
 			</div>
 		</div>

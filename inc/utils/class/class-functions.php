@@ -121,7 +121,7 @@ class Functions
             return $out_put;
         }
     }
-    public static function get_products_info(int $post_id): array
+    public static function get_products_info($post_id): array
     {
         $shop_meta_string = \get_post_meta($post_id, Bootstrap::SNAKE . '_meta', true) ?? '[]';
 
@@ -226,13 +226,81 @@ class Functions
             return $attributes;
         }
     }
+		/**
+     * 檢查 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
+     * 如果不一致，就更新 shop_meta 裡面的 data
+     *
+     * @param array $shop_meta
+     * @return array
+     */
+    public static function handleShopMeta(array $shop_meta): array
+    {
+        $need_update = false;
+        // 檢查當前的 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
+        foreach ($shop_meta as $key => $meta) {
+            $meta_product_type = $meta[ 'productType' ] ?? '';
+            if (empty($meta_product_type)) {
+                // 如果舊版本用戶沒有存到 productType，就判斷給個預設值
+                $is_variable_product = !empty($meta[ 'variations' ]);
+                $meta_product_type   = $is_variable_product ? 'variable' : 'simple';
+            }
+
+            $product_id = $meta[ 'productId' ];
+            /**
+             * @var \WC_Product_Variable $product =>改善vscode會提示 defined錯誤
+             */
+            $product      = \wc_get_product($product_id);
+            $product_type = $product->get_type();
+
+            if ($meta_product_type !== $product_type) {
+                $need_update = true;
+                // 如果不一致，就更新 shop_meta 裡面的 productType
+                $shop_meta[ $key ][ 'productType' ] = $product_type;
+
+                if ($product_type === 'simple') {
+                    $shop_meta[ $key ] = [
+                        "productId"    => $product_id,
+                        "productType"  => $product_type,
+                        "regularPrice" => $product->get_regular_price(),
+                        "salesPrice"   => $product->get_sale_price(),
+                     ];
+                }
+
+                if ($product_type === 'variable') {
+                    $variations          = $product->get_available_variations();
+                    $formattedVariations = [  ];
+                    foreach ($variations as $key => $variation) {
+                        $formattedVariations[  ] = [
+                            "variationId"  => $variation[ 'variation_id' ],
+                            "regularPrice" => $variation[ 'display_regular_price' ],
+                            "salesPrice"   => $variation[ 'display_price' ],
+                         ];
+                    }
+
+                    $shop_meta[ $key ] = [
+                        "productId"   => $product_id,
+                        "productType" => $product_type,
+                        "variations"  => $formattedVariations,
+                     ];
+                }
+            }
+        }
+
+        if ($need_update) {
+            // 更新 post_meta
+            global $post;
+            \update_post_meta($post->ID, Bootstrap::SNAKE . '_meta', \wp_json_encode($shop_meta));
+        }
+
+        return $shop_meta;
+    }
     /**
      * 對陣列進行 篩選 / 去重 / 取價格低
      * @param array $arr1 需要被篩選的陣列
      * @param array $arr2 用來比較的陣列
      * @return array 回傳經過篩選的arr1陣列
      */
-    public static function filter_same_elements(array $arr1, array $arr2): array
+    public static function filter_same_elements(array $arr1, array $arr2=[]): array
     {
         // 去重 及 取價格低
         $filteredProducts = [  ];
@@ -292,9 +360,10 @@ class Functions
             }
         }
         // 篩選=>從B陣列中提取id值
-        $idsInB = array_column($arr2, 'product_id');
-        return array_filter($filteredProducts, function ($v) use ($idsInB) {
-            return !in_array($v[ 'meta' ][ 'productId' ], $idsInB);
-        });
+					$idsInB = array_column($arr2, 'product_id');
+					$filteredProducts=array_filter($filteredProducts, function ($v) use ($idsInB) {
+						return !in_array($v[ 'meta' ][ 'productId' ], $idsInB);
+				});
+        return $filteredProducts;
     }
 }

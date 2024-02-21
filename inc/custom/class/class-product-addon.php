@@ -36,6 +36,7 @@ class ProductAddon
     }
     function ele_custom_cart_item_price($price, $cart_item, $cart_item_key)
     {
+        // error_log(print_r($cart_item, true));
         if (array_key_exists('product_addon_price', $cart_item)) {
             $price = 'NT$' . number_format(floatval($cart_item[ 'product_addon_price' ]));
         }
@@ -83,7 +84,7 @@ class ProductAddon
         $product_type        = $product->get_type();
         $product_meta_string = \get_post_meta($product->get_id(), Bootstrap::SNAKE . '_meta', true);
         $product_meta        = Functions::json_parse($product_meta_string, [  ], true);
-        $handled_shop_meta   = $this->handleShopMeta($product_meta);
+        $handled_shop_meta   = Functions::handleShopMeta($product_meta);
         //post_meta 不為空時
         if (!empty($handled_shop_meta) && ($product_type == 'simple' || $product_type == 'variable')) {
             echo '<div class="productAddonContainer w-full border border-solid border-[#ddd] my-4">';
@@ -143,7 +144,7 @@ class ProductAddon
             //取得post_meta資料
             $product_meta_string = \get_post_meta($productID, Bootstrap::SNAKE . '_meta', true);
             $product_meta        = Functions::json_parse($product_meta_string, [  ], true);
-            $handled_shop_meta   = $this->handleShopMeta($product_meta);
+            $handled_shop_meta   = Functions::handleShopMeta($product_meta);
 
             //post_meta 不為空時且product id 不存在cart_items中
             if (!empty($handled_shop_meta)) {
@@ -159,10 +160,8 @@ class ProductAddon
         }
         //需要排除的商品=>如果購物車裡面有加購商品,則不顯示加購商品
         $filterProducts = Functions::filter_same_elements($cartData, $cart_items);
-
-        //將資料傳入js
+        //取出所有加購商品，包含以在購物車中的
         \wp_localize_script(Bootstrap::KEBAB, Bootstrap::SNAKE . '_cart_data', $filterProducts);
-
         //渲染畫面
         //默認不執行
         $executeCode = false;
@@ -173,41 +172,11 @@ class ProductAddon
             }
         }
         if ($executeCode) {
-            ?>
-<div
-	class="productAddonWrap w-full bg-[#F6F6F6] border border-solid border-[#EDEDED] px-[15px] py-[10px]">
-	<h3 class="goBuyTitle md:text-xl text-sm">尚有更多精彩優惠等著你！目前未享用：</h3>
-</div>
-<div id="productAddonList"
-	class="w-full grid grid-cols-1 md:grid-cols-3 text-[#333333] font-semibold border border-t-0 border-solid border-[#EDEDED] mb-5 ">
-	<?php
-foreach ($filterProducts as $item) {
-                switch ($item[ 'meta' ][ 'productType' ]) {
-                    case 'variable':
-                        \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/variable.php', false, [
-                            'product'             => $item[ 'product' ][ 'productObj' ],
-                            'meta'                => $item[ 'meta' ],
-                            'variationAttributes' => $item[ 'product' ][ 'productObj' ]->get_variation_attributes(false),
-                         ]);
-                        break;
-                    case 'simple':
-                        \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
-                            'product' => $item[ 'product' ][ 'productObj' ],
-                            'meta'    => $item[ 'meta' ],
-                         ]);
-                        break;
-                    default:
-                        \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
-                            'product' => $item[ 'product' ][ 'productObj' ],
-                            'meta'    => $item[ 'meta' ],
-                         ]);
-                        break;
-                }
-            }
-            ?>
-</div>
-<?php
-}
+            //將資料傳入js
+            \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/index.php', false, [
+                'filterProducts' => $filterProducts,
+             ]);
+        }
     }
 
     /**
@@ -241,6 +210,7 @@ foreach ($filterProducts as $item) {
         }
     }
     /**
+     * (已經移動到Function)
      * 檢查 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
      * 如果不一致，就更新 shop_meta 裡面的 data
      *

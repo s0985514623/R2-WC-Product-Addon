@@ -2,3 +2,10 @@ $primary: #1677ff;
 
 @import "./global.scss";
 @import "./example.scss";
+/* 解購物車頁中不知為何會出現的P標籤BUG */
+#promotion p:empty,
+#productAddonList p:empty,
+#promotion br,
+#productAddonList br {
+	display: none;
+}

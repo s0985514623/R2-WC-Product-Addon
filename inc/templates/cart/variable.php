@@ -6,19 +6,21 @@ use J7\WpMyAppPlugin\MyApp\Inc\Functions;
     'meta'                => $meta,
     'variationAttributes' => $variationAttributes,
  ] = $args;
+//解構賦值 $meta
+[
+	'parentProductId' => $parent_product_id,
+	'productId'       => $product_addon_id,
+	'variations'      => $variations,
+]                 = $meta;
 
 //以防如果沒有變體屬性，賦予空陣列
 $variationAttributes = $variationAttributes ?? [  ];
 $img_id              = $product->get_image_id();
 $img_src             = \wp_get_attachment_image_src($img_id, [ 450, 450 ]);
 $name                = $product->get_name();
+$permalink = get_permalink($product->get_id()).'?parentProductId='.$parent_product_id;
 
-//解構賦值 $meta
-[
-    'parentProductId' => $parent_product_id,
-    'productId'       => $product_addon_id,
-    'variations'      => $variations,
- ]                 = $meta;
+
 $price_arr         = [  ];
 $regular_price_arr = [  ];
 $variation_arr     = [  ];
@@ -88,7 +90,8 @@ if ($product_status === 'publish'):
 	</div>
 	<div class="productAddonInfo px-[15px] flex flex-col justify-between col-span-3 ">
 		<div class="flex flex-col gap-2">
-			<span class="productAddonTitle md:text-base text-sm"><?=$name?></span>
+			<div class="productAddonTitle md:text-base text-sm"><a href="<?=$permalink?>"><?=$name?></a>
+			</div>
 			<table class="font-bold text-base">
 				<tbody>
 					<?php foreach ($variationAttributes as $label => $valueArray): ?>
@@ -119,38 +122,38 @@ if ($product_status === 'publish'):
 				<div class="flex flex-wrap text-sm text-[#4562A8] font-bold gap-2 ">
 					<?php if ($max === $min && !empty($min)): ?>
 					<?php if ($max === $max_regular_price): ?>
-					<p class="mb-0 mt-1 salesPrice tracking-normal"
+					<span class="mb-0 mt-1 salesPrice tracking-normal"
 						data-original_price="<?=number_format($min)?>">NT$
 						<?=number_format($min)?>
-					</p>
+					</span>
 					<?php else: ?>
-					<p class="mb-0 mt-1 opacity-50 regularPrice tracking-normal"
+					<span class="mb-0 mt-1 opacity-50 regularPrice tracking-normal"
 						data-original_price="<?=number_format($max_regular_price)?>">
 						<del>NT$ <?=number_format($max_regular_price)?></del>
-					</p>
-					<p class="mb-0 mt-1 salesPrice tracking-normal"
+					</span>
+					<span class="mb-0 mt-1 salesPrice tracking-normal"
 						data-original_price="<?=number_format($min)?>">NT$
 						<?=number_format($min)?>
-					</p>
+					</span>
 					<?php endif;?>
 					<?php else: ?>
 					<?php if (!empty($max_regular_price)): ?>
-					<p class="mb-0 mt-1 opacity-50 regularPrice tracking-normal"
+					<span class="mb-0 mt-1 opacity-50 regularPrice tracking-normal"
 						data-original_price="<?=number_format($max_regular_price)?>">
 						<del>NT$ <?=number_format($max_regular_price)?></del>
-					</p>
+					</span>
 					<?php endif;?>
 					<?php if (!empty($variable_id)): ?>
-					<p class="mb-0 mt-1 salesPrice tracking-normal"
+					<span class="mb-0 mt-1 salesPrice tracking-normal"
 						data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
 						NT$<?=number_format($salesPrice)?>
-					</p>
+					</span>
 					<?php else: ?>
 					<?php if (!empty($max)): ?>
-					<p class="mb-0 mt-1 salesPrice tracking-normal"
+					<span class="mb-0 mt-1 salesPrice tracking-normal"
 						data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
 						NT$<?=number_format($min)?> – NT$<?=number_format($max)?>
-					</p>
+					</span>
 					<?php endif;?>
 					<?php endif;?>
 					<?php endif;?>
@@ -169,84 +172,4 @@ if ($product_status === 'publish'):
 		</div>
 	</div>
 </div>
-
-
-<!-- old -->
-<!-- <div class="variableProduct productAddon flex w-full pl-6 pb-5 relative"
-	data-product_addon_id="<?=$product_addon_id?>" data-variable_id="<?=$variable_id?>">
-	<div class="productAddonImg w-1/5 ">
-		<input class="peer absolute left-0 top-5 " type="checkbox" />
-		<img class="peer-checked:border-[5px] peer-checked:border-solid peer-checked:border-[#4562A8] "
-			src="<?=$img_src[ 0 ]?>" alt="<?=$name?>">
-	</div>
-	<div class="productAddonInfo w-4/5 pl-6">
-		<div class="productAddonName text-xl text-[#4562A8] font-bold mb-4"><?=$name?></div>
-		<table class="font-bold text-base">
-			<tbody>
-				<?php foreach ($variationAttributes as $label => $valueArray): ?>
-				<tr>
-					<th class="border-0">
-						<label class="text-nowrap" for="<?=$label?>"><?=\wc_attribute_label($label)?></label>
-					</th>
-					<td class="border-0">
-						<select class="" data-label_key="<?=$label?>">
-							<option value="">請選取一個選項</option>
-							<?php foreach ($valueArray as $value): ?>
-							<option value="<?=urldecode($value)?>"
-								<?=!empty($default_attributes) && $default_attributes->$label == urldecode($value) ? 'selected' : 'none'?>>
-								<?=urldecode($value)?></option>
-
-							<?php endforeach;?>
-						</select>
-					</td>
-				</tr>
-				<?php endforeach;?>
-			</tbody>
-		</table>
-		<div class="clearLink hidden font-bold text-base"
-			data-product_addon_id="<?=$product_addon_id?>"><a href="javascript:void(0);"
-				class="!underline">清除</a>
-		</div>
-		<div class="productAddonPrice">
-			<div class="flex flex-wrap text-xl text-[#4562A8] font-bold gap-2">
-
-				<?php if ($max === $min && !empty($min)): ?>
-				<?php if ($max === $max_regular_price): ?>
-				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=number_format($min)?>">NT$
-					<?=number_format($min)?>
-				</p>
-				<?php else: ?>
-				<p class="mb-0 mt-1 opacity-50 regularPrice"
-					data-original_price="<?=number_format($max_regular_price)?>">
-					<del>NT$ <?=number_format($max_regular_price)?></del>
-				</p>
-				<p class="mb-0 mt-1 salesPrice" data-original_price="<?=number_format($min)?>">NT$
-					<?=number_format($min)?>
-				</p>
-				<?php endif;?>
-				<?php else: ?>
-				<?php if (!empty($max_regular_price)): ?>
-				<p class="mb-0 mt-1 opacity-50 regularPrice"
-					data-original_price="<?=number_format($max_regular_price)?>">
-					<del>NT$ <?=number_format($max_regular_price)?></del>
-				</p>
-				<?php endif;?>
-				<?php if (!empty($variable_id)): ?>
-				<p class="mb-0 mt-1 salesPrice"
-					data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
-					NT$<?=number_format($salesPrice)?>
-				</p>
-				<?php else: ?>
-				<?php if (!empty($max)): ?>
-				<p class="mb-0 mt-1 salesPrice"
-					data-original_price="<?=number_format($min) . ' – NT$ ' . number_format($max)?>">
-					NT$<?=number_format($min)?> – NT$<?=number_format($max)?>
-				</p>
-				<?php endif;?>
-				<?php endif;?>
-				<?php endif;?>
-			</div>
-		</div>
-	</div>
-</div> -->
 <?php endif;?>

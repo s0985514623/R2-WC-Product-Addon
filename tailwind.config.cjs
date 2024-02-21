@@ -11,6 +11,11 @@ module.exports = {
     './inc/custom/class/class-product-addon.php',
     './inc/templates/single-product/simple.php',
     './inc/templates/single-product/variable.php',
+    './inc/templates/cart/simple.php',
+    './inc/templates/cart/variable.php',
+    './inc/templates/cart/index.php',
+    './inc/custom/bundles/php/produce-bundles.php',
+    './inc/custom/js/add_to_cart.js',
   ],
   theme: {
     extend: {

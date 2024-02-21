@@ -33,7 +33,7 @@ export const r2_wcpa_handleChange = (select, variableProductInfo) => {
       //如果選擇的屬性和變體的屬性相同,執行updatePrice並返回true跳出迴圈
       if (isEquivalent(selectedObj, element.attributes)) {
         //將選擇的變體id存入productAddon
-        select.parents('.productAddon').data('variable_id', element.variation_id)
+        select.parents('.productAddon').attr('data-variable_id', element.variation_id)
         updatePrice(select, element.regularPrice, element.salesPrice)
         clearLink.find('span').remove()
         return true
@@ -42,6 +42,7 @@ export const r2_wcpa_handleChange = (select, variableProductInfo) => {
     })
     //如果選擇的屬性和變體的屬性不相同,則改變金額為原價,並則顯示清除連結
     if (isCheckVariable.length === 0) {
+      select.parents('.productAddon').attr('data-variable_id', 0)
       regularPrice.find('del').text(`NT$ ${regularPrice.data('original_price')}`)
       salesPrice.text(`NT$ ${salesPrice.data('original_price')}`)
       //如果沒有符合的選項,則顯示提示(如果已經有提示則不顯示)
@@ -50,6 +51,7 @@ export const r2_wcpa_handleChange = (select, variableProductInfo) => {
   }
   //判斷selectedObj是否為空對象
   else if (hasEmptyValues(selectedObj)) {
+    select.parents('.productAddon').attr('data-variable_id', 0)
     //如果為空對象,則不顯示清除連結
     clearLink.hide()
   }
@@ -58,6 +60,7 @@ export const r2_wcpa_handleChange = (select, variableProductInfo) => {
     //禁用其他屬性(有bug先不使用,向上選擇時不會執行,向下選擇時沒問題)
     // disabledOtherAttribute(select, selectedObj, variableProductInfo)
 
+    select.parents('.productAddon').attr('data-variable_id', 0)
     //返回原價並顯示清除連結
     regularPrice.find('del').text(`NT$ ${regularPrice.data('original_price')}`)
     salesPrice.text(`NT$ ${salesPrice.data('original_price')}`)
@@ -203,71 +206,211 @@ export const clearSelect = (event) => {
   allSelect.val('')
   //返回原價並隱藏清除連結
   const productAddonPrice = productAddon.find('.productAddonPrice')
-  console.log('🚀 ~ productAddonPrice:', productAddonPrice)
   const regularPrice = productAddonPrice.find('.regularPrice')
-  console.log('🚀 ~ regularPrice:', regularPrice)
   const salesPrice = productAddonPrice.find('.salesPrice')
   regularPrice.find('del').text(`NT$ ${regularPrice.data('original_price').toLocaleString()}`)
   salesPrice.text(`NT$ ${salesPrice.data('original_price').toLocaleString()}`)
   clearLink.hide()
 }
+//
+/**
+ * 取得ajax nonce
+ *
+ * @return nonce
+ */
 
-//加入購物車代碼
-export const addToCart = async ({ _event, data }) => {
-  //TODO 上線後刪除
-  console.log('🚀 ~ data:', data)
-  // //取得原本文字
-  // const defaultText = event.target.innerHTML.hasClass('isLoading')
-  // //loading狀態
-  // const loadingState =
-  //   '<div class="isLoading h-[18px] flex justify-center items-center"><svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" height="1rem" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg {fill: #ffffff}</style><path d="M222.7 32.1c5 16.9-4.6 34.8-21.5 39.8C121.8 95.6 64 169.1 64 256c0 106 86 192 192 192s192-86 192-192c0-86.9-57.8-160.4-137.1-184.1c-16.9-5-26.6-22.9-21.5-39.8s22.9-26.6 39.8-21.5C434.9 42.1 512 140 512 256c0 141.4-114.6 256-256 256S0 397.4 0 256C0 140 77.1 42.1 182.9 10.6c16.9-5 34.8 4.6 39.8 21.5z" /></svg></div>'
-  $.ajax({
+export const getAjaxNonce = () => {
+  return $.ajax({
     type: 'GET',
     url: `${wpApiSettings.root}/wrp/ajaxnonce`,
     success(nonceRes) {
       const nonce = nonceRes.nonce
-      $.ajax({
-        type: 'POST',
-        url: r2_wcpa_data.env.ajaxUrl,
-        data: {
-          action: 'addon_handle_add_to_cart',
-          nonce,
-          parent_product_id: data.parent_product_id,
-          product_id: data.product_id,
-          quantity: data.quantity,
-          variable_id: data.variable_id ?? 0,
-        },
-        success(res) {
-          //TODO 上線後刪除
-          console.log('🚀 ~ new res:', res)
-          //成功會返回fragments / cart_hash參數
-          $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
-          //錯誤會返回error:true / product_url參數
-        },
-        error(error) {
-          console.log('🚀 ~ error:', error)
-          //接上r2-member-filter外掛的class-user-is-login:未登入時返回登入視窗
-          //如果已經有登入視窗就不再重複添加
-          if ($('body').find('.noLoginPup').length > 0) {
-            const LoginPup = $('.noLoginPup')
-            LoginPup.addClass('animate__fadeInRight')
-            LoginPup.removeClass('animate__fadeOutRight')
-          } else {
-            // 從 response 中獲取 HTML 內容
-            const responseText = error.responseText
-            // 使用 jQuery 創建一個虛擬元素來解析 HTML
-            const virtualElement = $('<div>').html(responseText)
-            // 提取 <div> 元素
-            const divElement = virtualElement.find('.noLoginPup')
-            // 提取 <script> 元素=>第一段是tailwindCss CDN 第二段是JS
-            const scriptElement = virtualElement.find('script')
-            // 將 <div> 元素添加到 body 中
-            $('body').append(divElement)
-            // $("body").append(`${scriptElement[0].outerHTML}`);
-            $('body').append(`<script>${scriptElement[1].innerHTML}</script>`)
-          }
-        },
-      })
+      return nonce
+    },
+    error(error) {
+      console.log('🚀 ~ error:', error)
     },
   })
+}
+/**
+ * 預設加入購物車代碼
+ *
+ * @param {*} data
+ */
+export const defaultAddToCart = ({ data }) => {
+  return $.ajax({
+    type: 'POST',
+    url: wc_add_to_cart_params.wc_ajax_url.toString().replace('%%endpoint%%', 'add_to_cart'),
+    data,
+    dataType: 'json',
+    success(res) {
+      return res
+    },
+    error(error) {
+      return error
+    },
+  })
+}
+
+/**
+ * 加購商品加入購物車代碼(只在cart_page使用)
+ *
+ * @param {*} data
+ *
+ */
+export const addonAddToCart = async ({ data, nonce }) => {
+  return await $.ajax({
+    type: 'POST',
+    url: r2_wcpa_data.env.ajaxUrl,
+    data: {
+      action: 'addon_handle_add_to_cart',
+      nonce,
+      parent_product_id: data.parent_product_id,
+      product_id: data.product_id,
+      quantity: data.quantity,
+      variable_id: data.variable_id ?? 0,
+    },
+    success(res) {
+      return res
+    },
+    error(error) {
+      console.log('🚀 ~ error:', error)
+    },
+  })
+}
+/**
+ * 刪除購物車代碼(只在cart_page使用)
+ *
+ * @param {*} data
+ *
+ */
+export const deleteCart = ({ data, nonce }) => {
+  //先做刪除購物車
+  return $.ajax({
+    type: 'POST',
+    url: r2_wcpa_data.env.ajaxUrl,
+    data: {
+      action: 'addon_handle_delete_cart',
+      nonce,
+      parentsId: data.product_id,
+    },
+    success(res) {
+      return res
+    },
+    error(error) {
+      console.log('刪除購物車error', error)
+    },
+  })
+}
+
+/**
+ * 通用型AJAX加入購物車
+ *
+ * @param {Object} data  購物車資料
+ * @param {string} nonce 透過getAjaxNonce 取得的nonce
+ * @return {Promise} 回傳Promise
+ */
+
+export const addToCart = async (data, nonce) => {
+  return await $.ajax({
+    type: 'POST',
+    url: r2_wcpa_data.env.ajaxUrl,
+    data: {
+      action: 'custom_handle_add_to_cart',
+      nonce,
+      items: data,
+    },
+    success(res) {
+      return res
+    },
+    error(error) {
+      console.log('🚀 ~ error:', error)
+    },
+  })
+}
+
+/**
+ * 通用型點擊加入購物車事件
+ *
+ * @param {Object} event 點擊對象
+ * @return void
+ */
+
+export const clickAddToCartBtn = (event) => {
+  event.preventDefault()
+  $(event.target).prop('disabled', true)
+  const product_id = $(event.target).siblings('input[name="variation_id"]').val() ?? $(event.target).val()
+  const quantity = $(event.target).siblings('.quantity').find('input[name="quantity"]').val() ?? 1
+  //收集購物車資料，後端用foreach處理
+  const data = [
+    {
+      product_id,
+      quantity,
+    },
+  ]
+
+  //取得原本文字
+  const defaultText = event.target.innerHTML
+  //loading狀態
+  const loadingState = '<div class="h-[18px] flex justify-center items-center"><svg style="animation: spin 1s linear infinite" xmlns="http://www.w3.org/2000/svg" height="1rem" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><style>svg {fill: #ffffff}</style><path d="M222.7 32.1c5 16.9-4.6 34.8-21.5 39.8C121.8 95.6 64 169.1 64 256c0 106 86 192 192 192s192-86 192-192c0-86.9-57.8-160.4-137.1-184.1c-16.9-5-26.6-22.9-21.5-39.8s22.9-26.6 39.8-21.5C434.9 42.1 512 140 512 256c0 141.4-114.6 256-256 256S0 397.4 0 256C0 140 77.1 42.1 182.9 10.6c16.9-5 34.8 4.6 39.8 21.5z" /></svg></div>'
+  event.target.innerHTML = loadingState
+
+  //取得是否有加購商品
+  const checkedProductAddon = $('.productAddon').find('input[type=checkbox]:checked')
+  //取得選擇的加價購商品的父元素
+  const productAddons = checkedProductAddon.parents('.productAddon')
+  //如果有加購商品,則執行預設加入購物車再執行加購商品加入
+  if (productAddons.length > 0) {
+    for (const item of productAddons) {
+      //如果該加購商品為可變商品
+      if ($(item).hasClass('variableProduct')) {
+        const parent_product_id = $(item).data('parent_product_id')
+        const product_addon_id = $(item).data('product_addon_id')
+        const variable_id = $(item).attr('data-variable_id')
+        const addonData = {
+          parent_product_id,
+          product_id: product_addon_id,
+          quantity: 1,
+          variable_id,
+        }
+        //將加購商品資料加入dataArray
+        data.push(addonData)
+      }
+      //如果該加購商品為簡單商品
+      else if ($(item).hasClass('simpleProduct')) {
+        const parent_product_id = $(item).data('parent_product_id')
+        const product_addon_id = $(item).data('product_addon_id')
+        const addonData = {
+          parent_product_id,
+          product_id: product_addon_id,
+          quantity: 1,
+        }
+        //將加購商品資料加入dataArray
+        data.push(addonData)
+      }
+    }
+  }
+  //取得nonce
+  getAjaxNonce().then(
+    //取得nonce後執行加入購物車
+    function (nonce) {
+      //加入購物車
+      addToCart(data, nonce).then(
+        //加入購物車成功
+        function (res) {
+          event.target.innerHTML = defaultText
+          $(event.target).prop('disabled', false)
+          $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
+        },
+        //加入購物車失敗
+        function (error) {
+          console.log('🚀 ~ error:', error)
+        },
+      )
+    },
+    //取得nonce失敗
+    function (error) {
+      console.log('🚀 ~ error:', error)
+    },
+  )
 }
