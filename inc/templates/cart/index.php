@@ -2,8 +2,8 @@
 namespace J7\WpMyAppPlugin\MyApp\Inc;
 
 [
-    'filterProducts' => $filterProducts,
- ] = $args;
+	'filterProducts' => $filterProducts,
+] = $args;
 
 ?>
 <div
@@ -13,28 +13,40 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 <div id="productAddonList"
 	class="w-full grid grid-cols-1 md:grid-cols-3 text-[#333333] font-semibold border border-t-0 border-solid border-[#EDEDED] mb-5 ">
 	<?php
-foreach ($filterProducts as $item) {
-    switch ($item[ 'meta' ][ 'productType' ]) {
-        case 'variable':
-            \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/variable.php', false, [
-                'product'             => $item[ 'product' ][ 'productObj' ],
-                'meta'                => $item[ 'meta' ],
-                'variationAttributes' => $item[ 'product' ][ 'productObj' ]->get_variation_attributes(false),
-             ]);
-            break;
-        case 'simple':
-            \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
-                'product' => $item[ 'product' ][ 'productObj' ],
-                'meta'    => $item[ 'meta' ],
-             ]);
-            break;
-        default:
-            \load_template(Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php', false, [
-                'product' => $item[ 'product' ][ 'productObj' ],
-                'meta'    => $item[ 'meta' ],
-             ]);
-            break;
-    }
-}
-?>
+	foreach ( $filterProducts as $item ) {
+		switch ( $item['meta']['productType'] ) {
+			case 'variable':
+				\load_template(
+					Bootstrap::get_plugin_dir() . '/inc/templates/cart/variable.php',
+					false,
+					array(
+						'product'             => $item['product']['productObj'],
+						'meta'                => $item['meta'],
+						'variationAttributes' => $item['product']['productObj']->get_variation_attributes( false ),
+					)
+				);
+				break;
+			case 'simple':
+				\load_template(
+					Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php',
+					false,
+					array(
+						'product' => $item['product']['productObj'],
+						'meta'    => $item['meta'],
+					)
+				);
+				break;
+			default:
+				\load_template(
+					Bootstrap::get_plugin_dir() . '/inc/templates/cart/simple.php',
+					false,
+					array(
+						'product' => $item['product']['productObj'],
+						'meta'    => $item['meta'],
+					)
+				);
+				break;
+		}
+	}
+	?>
 </div>

@@ -3,22 +3,25 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 
 // 1.插入新的action checkbox
 // 2.寫 css 與jQuery 做到顯示與排版與隱藏
-//$(".bundled_product_optional_checkbox").contents().filter(function () {
-//     return this.nodeType === 3; // 过滤出文本节点
+// $(".bundled_product_optional_checkbox").contents().filter(function () {
+// return this.nodeType === 3; // 过滤出文本节点
 // }).remove();
-//3.jQuery模擬新的input checkbox點擊等於被隱藏的input checkbox點擊
+// 3.jQuery模擬新的input checkbox點擊等於被隱藏的input checkbox點擊
 
-//載入新的input checkbox
-\add_action('woocommerce_bundled_item_details', function () {
-    echo '<label class="customLabel">
+// 載入新的input checkbox
+\add_action(
+	'woocommerce_bundled_item_details',
+	function () {
+		echo '<label class="customLabel">
 	<input class="customInput" type="checkbox"  value="">
 </label>';
-});
-//判斷購物車中的商品是否為綑綁商品
-//1.從cart_items中取出['stamp']的值=>在綑綁商品中的產品 有ID 及 折扣金額
-//2.透過ID取得綑綁商品的資料 標題/價格/折扣多少錢
-//3.CTA 前往購買綑綁商品
-//4.增加購物車頁面加購縮圖
+	}
+);
+// 判斷購物車中的商品是否為綑綁商品
+// 1.從cart_items中取出['stamp']的值=>在綑綁商品中的產品 有ID 及 折扣金額
+// 2.透過ID取得綑綁商品的資料 標題/價格/折扣多少錢
+// 3.CTA 前往購買綑綁商品
+// 4.增加購物車頁面加購縮圖
 /**5.加入購物車連結思路:
  * 移除現有對應的綑綁商品
  * 從Edit連結篩選出bundle_selected_optional_{id}=yes&bundle_quantity_{id}=1等資料其餘移除
@@ -28,71 +31,73 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
  * 將其添加在/?add-to-cart網址後面
  */
 
-add_action('woocommerce_after_cart_table', function () {
-    //秀出被加入購物車中的商品
-    $cart_items = WC()->cart->cart_contents;
-    $cartData   = [  ];
-    foreach ($cart_items as $product) {
-        //如果有綑綁商品且不是綑綁商品的子商品
-        if ($product[ 'stamp' ] !== null && $product[ 'bundled_by' ] == null) {
-            //取得商品連結
-            $productLink = $product[ 'data' ]->get_permalink();
-            //取得產品ID
-            $productID = $product[ 'data' ]->get_id();
-            //優先取得已加入購物車的綑綁商品
-            $selected = '';
-            foreach ($product[ 'stamp' ] as $index => $bundleProduct) {
-                if ($bundleProduct[ 'optional_selected' ] === 'yes') {
-                    $selected .= 'bundle_selected_optional_' . $index . '=yes&bundle_quantity_' . $index . '=1&';
-                }
-            }
-            $myObject                = new \stdClass();
-            $myObject->productLink   = $productLink;
-            $myObject->productID     = $productID;
-            $myObject->selected      = $selected;
-            $myObject->bundleProduct = [  ];
-            //再取得未被加入購物車的綑綁商品
-            foreach ($product[ 'stamp' ] as $index => $bundleProduct) {
-                if ($bundleProduct[ 'optional_selected' ] === 'no') {
-                    //取得bundled_item_id
-                    $bundled_item_id = $index;
-                    //取得加入購物車連結
-                    $add_to_cart = 'bundle_selected_optional_' . $bundled_item_id . '=yes&bundle_quantity_' . $bundled_item_id . '=1&';
-                    //取得綑綁商品的資料
-                    $bundleProductData = wc_get_product($bundleProduct[ 'product_id' ]);
-                    //取得綑綁商品的縮圖
-                    $bundleProductImg = $bundleProductData->get_image();
-                    //取得綑綁商品的標題
-                    $bundleProductTitle = $bundleProductData->get_title();
-                    //取得綑綁商品的價格
-                    $bundleProductPrice = $bundleProductData->get_price();
-                    //取得綑綁商品的折扣金額
-                    $bundleProductDiscount = $bundleProduct[ 'discount' ];
-                    //取得綑綁商品折扣後的金額
-                    $bundleProductDiscountPrice              = $bundleProductPrice - ($bundleProductPrice * ($bundleProductDiscount / 100));
-                    $ProductData                             = new \stdClass();
-                    $ProductData->add_to_cart                = $add_to_cart;
-                    $ProductData->bundleProductTitle         = $bundleProductTitle;
-                    $ProductData->bundleProductPrice         = $bundleProductPrice;
-                    $ProductData->bundleProductDiscountPrice = $bundleProductDiscountPrice;
-                    $ProductData->bundleProductImg           = $bundleProductImg;
-                    $myObject->bundleProduct[  ]             = $ProductData;
-                }
-                $cartData[ $product[ 'product_id' ] ] = $myObject;
-            }
-        }
-    }
-    //渲染畫面
-    //默認不執行
-    $executeCode = false;
-    foreach ($cartData as $item) {
-        if (!empty($item->bundleProduct)) {
-            $executeCode = true; // 如果有一个非空的bundleProduct，设置为true
-            break; // 可以提前结束循环，因为不需要继续检查
-        }
-    }
-    if ($executeCode) {
-        ?>
+add_action(
+	'woocommerce_after_cart_table',
+	function () {
+		// 秀出被加入購物車中的商品
+		$cart_items = WC()->cart->cart_contents;
+		$cartData   = array();
+		foreach ( $cart_items as $product ) {
+			// 如果有綑綁商品且不是綑綁商品的子商品
+			if ( $product['stamp'] !== null && $product['bundled_by'] == null ) {
+				// 取得商品連結
+				$productLink = $product['data']->get_permalink();
+				// 取得產品ID
+				$productID = $product['data']->get_id();
+				// 優先取得已加入購物車的綑綁商品
+				$selected = '';
+				foreach ( $product['stamp'] as $index => $bundleProduct ) {
+					if ( $bundleProduct['optional_selected'] === 'yes' ) {
+						$selected .= 'bundle_selected_optional_' . $index . '=yes&bundle_quantity_' . $index . '=1&';
+					}
+				}
+				$myObject                = new \stdClass();
+				$myObject->productLink   = $productLink;
+				$myObject->productID     = $productID;
+				$myObject->selected      = $selected;
+				$myObject->bundleProduct = array();
+				// 再取得未被加入購物車的綑綁商品
+				foreach ( $product['stamp'] as $index => $bundleProduct ) {
+					if ( $bundleProduct['optional_selected'] === 'no' ) {
+						// 取得bundled_item_id
+						$bundled_item_id = $index;
+						// 取得加入購物車連結
+						$add_to_cart = 'bundle_selected_optional_' . $bundled_item_id . '=yes&bundle_quantity_' . $bundled_item_id . '=1&';
+						// 取得綑綁商品的資料
+						$bundleProductData = wc_get_product( $bundleProduct['product_id'] );
+						// 取得綑綁商品的縮圖
+						$bundleProductImg = $bundleProductData->get_image();
+						// 取得綑綁商品的標題
+						$bundleProductTitle = $bundleProductData->get_title();
+						// 取得綑綁商品的價格
+						$bundleProductPrice = $bundleProductData->get_price();
+						// 取得綑綁商品的折扣金額
+						$bundleProductDiscount = $bundleProduct['discount'];
+						// 取得綑綁商品折扣後的金額
+						$bundleProductDiscountPrice              = $bundleProductPrice - ( $bundleProductPrice * ( $bundleProductDiscount / 100 ) );
+						$ProductData                             = new \stdClass();
+						$ProductData->add_to_cart                = $add_to_cart;
+						$ProductData->bundleProductTitle         = $bundleProductTitle;
+						$ProductData->bundleProductPrice         = $bundleProductPrice;
+						$ProductData->bundleProductDiscountPrice = $bundleProductDiscountPrice;
+						$ProductData->bundleProductImg           = $bundleProductImg;
+						$myObject->bundleProduct[]               = $ProductData;
+					}
+					$cartData[ $product['product_id'] ] = $myObject;
+				}
+			}
+		}
+		// 渲染畫面
+		// 默認不執行
+		$executeCode = false;
+		foreach ( $cartData as $item ) {
+			if ( ! empty( $item->bundleProduct ) ) {
+				$executeCode = true; // 如果有一个非空的bundleProduct，设置为true
+				break; // 可以提前结束循环，因为不需要继续检查
+			}
+		}
+		if ( $executeCode ) {
+			?>
 <style>
 /* 解不知為何會出現的P標籤BUG */
 #promotion p {
@@ -105,31 +110,31 @@ add_action('woocommerce_after_cart_table', function () {
 </div>
 <div id="promotion"
 	class="w-full grid grid-cols-1 md:grid-cols-3 text-[#333333] font-semibold border border-t-0 border-solid border-[#EDEDED] mb-5">
-	<?php
-foreach ($cartData as $item) {
-            if (!empty($item->bundleProduct)) {
-                foreach ($item->bundleProduct as $bundleProduct) {
-                    ?>
+			<?php
+			foreach ( $cartData as $item ) {
+				if ( ! empty( $item->bundleProduct ) ) {
+					foreach ( $item->bundleProduct as $bundleProduct ) {
+						?>
 	<div class="bundleProductItem py-5 px-[15px] grid grid-cols-5">
 		<div class="bundleProductImg aspect-square w-full col-span-2 md:col-span-3">
-			<?=$bundleProduct->bundleProductImg?>
+						<?php echo $bundleProduct->bundleProductImg; ?>
 		</div>
 		<div class="bundleProductInfo px-[15px] flex flex-col justify-between col-span-3 md:col-span-2">
 			<div class="flex flex-col gap-2">
 				<span
-					class="bundleProductTitle md:text-base text-sm"><?=$bundleProduct->bundleProductTitle?></span>
+					class="bundleProductTitle md:text-base text-sm"><?php echo $bundleProduct->bundleProductTitle; ?></span>
 				<div class="text-sm">
 					<span
-						class="bundleProductPrice tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px]">NT$<?=number_format($bundleProduct->bundleProductPrice)?></span>
+						class="bundleProductPrice tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px]">NT$<?php echo number_format( $bundleProduct->bundleProductPrice ); ?></span>
 					<span
-						class="bundleProductDiscountPrice tracking-normal text-[#4562A8]">NT$<?=number_format($bundleProduct->bundleProductDiscountPrice)?></span>
+						class="bundleProductDiscountPrice tracking-normal text-[#4562A8]">NT$<?php echo number_format( $bundleProduct->bundleProductDiscountPrice ); ?></span>
 				</div>
 			</div>
 			<div
 				class="bundleAddToCart flex gap-1 w-fit whitespace-nowrap items-center cursor-pointer rounded text-center py-1.5 px-2.5 bg-black  border border-black border-solid hover:bg-[#dddddd]">
 				<a onclick="clickHandler(event)" class="!text-white flex gap-1 items-center"
-					data-parentsId="<?=$item->productID?>"
-					data-href="<?=$item->productLink . '?add-to-cart=' . $item->productID . '&' . $item->selected . $bundleProduct->add_to_cart . ''?>"><svg
+					data-parentsId="<?php echo $item->productID; ?>"
+					data-href="<?php echo $item->productLink . '?add-to-cart=' . $item->productID . '&' . $item->selected . $bundleProduct->add_to_cart . ''; ?>"><svg
 						class="loading hidden animate-spin fill-white" xmlns="http://www.w3.org/2000/svg"
 						height="1em" viewBox="0 0 512 512">
 						<path
@@ -139,70 +144,72 @@ foreach ($cartData as $item) {
 			</div>
 		</div>
 	</div>
-	<?php
-}
-            }
-        }
-        ?>
+						<?php
+					}
+				}
+			}
+			?>
 </div>
-<?php
-}
-});
+			<?php
+		}
+	}
+);
 /**
  * AJAX 先將現有商品移除再加入新的商品
  */
 //
-//註冊JS
-function produce_bundles_enqueue()
-{
-    // Enqueue javascript on the frontend.
-    \wp_enqueue_script(
-        'produce-bundles-ajax-script',
-        Bootstrap::get_plugin_url() . 'inc/custom/bundles/js/produce-bundles.js',
-        array('jquery')
-    );
-    // The wp_localize_script allows us to output the ajax_url path for our script to use.
-    \wp_localize_script(
-        'produce-bundles-ajax-script',
-        'produce_bundles_ajax_obj',
-        array(
-            'ajaxUrl' => \admin_url('admin-ajax.php'),
-            'nonce'   => \wp_create_nonce('bundles-nonce'),
-        )
-    );
+// 註冊JS
+function produce_bundles_enqueue() {
+	// Enqueue javascript on the frontend.
+	\wp_enqueue_script(
+		'produce-bundles-ajax-script',
+		Bootstrap::get_plugin_url() . 'inc/custom/bundles/js/produce-bundles.js',
+		array( 'jquery' )
+	);
+	// The wp_localize_script allows us to output the ajax_url path for our script to use.
+	\wp_localize_script(
+		'produce-bundles-ajax-script',
+		'produce_bundles_ajax_obj',
+		array(
+			'ajaxUrl' => \admin_url( 'admin-ajax.php' ),
+			'nonce'   => \wp_create_nonce( 'bundles-nonce' ),
+		)
+	);
 }
-\add_action('wp_enqueue_scripts', '\J7\WpMyAppPlugin\MyApp\Inc\produce_bundles_enqueue');
-//AJAX接收
-function produce_bundles_ajax_request()
-{
-    $nonce = $_REQUEST[ 'nonce' ];
-    if (!wp_verify_nonce($nonce, 'bundles-nonce')) {
-        die('Nonce value cannot be verified.');
-    }
-    // The $_REQUEST contains all the data sent via ajax
-    if (isset($_REQUEST)) {
-        $parentsId = $_REQUEST[ 'parentsId' ];
-        // 移除現有對應的綑綁商品
-        if ($parentsId) {
-            foreach (WC()->cart->get_cart() as $cart_item_key => $cart_item) {
-                if ($cart_item[ 'product_id' ] == $parentsId) {
-                    WC()->cart->remove_cart_item($cart_item_key);
-                }
-            }
-            wp_send_json('ok');
-        }
-    }
-    // Always die in functions echoing ajax content
-    die();
+\add_action( 'wp_enqueue_scripts', '\J7\WpMyAppPlugin\MyApp\Inc\produce_bundles_enqueue' );
+// AJAX接收
+function produce_bundles_ajax_request() {
+	$nonce = $_REQUEST['nonce'];
+	if ( ! wp_verify_nonce( $nonce, 'bundles-nonce' ) ) {
+		die( 'Nonce value cannot be verified.' );
+	}
+	// The $_REQUEST contains all the data sent via ajax
+	if ( isset( $_REQUEST ) ) {
+		$parentsId = $_REQUEST['parentsId'];
+		// 移除現有對應的綑綁商品
+		if ( $parentsId ) {
+			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+				if ( $cart_item['product_id'] == $parentsId ) {
+					WC()->cart->remove_cart_item( $cart_item_key );
+				}
+			}
+			wp_send_json( 'ok' );
+		}
+	}
+	// Always die in functions echoing ajax content
+	die();
 }
 
-\add_action('wp_ajax_produce_bundles', '\J7\WpMyAppPlugin\MyApp\Inc\produce_bundles_ajax_request');
+\add_action( 'wp_ajax_produce_bundles', '\J7\WpMyAppPlugin\MyApp\Inc\produce_bundles_ajax_request' );
 // If you wanted to also use the function for non-logged in users (in a theme for example)
-\add_action('wp_ajax_nopriv_produce_bundles', '\J7\WpMyAppPlugin\MyApp\Inc\produce_bundles_ajax_request');
+\add_action( 'wp_ajax_nopriv_produce_bundles', '\J7\WpMyAppPlugin\MyApp\Inc\produce_bundles_ajax_request' );
 
-\add_action('wp_footer', function () {
-    //在此寫入jQuery 跟css
-    ?><style>
+\add_action(
+	'wp_footer',
+	function () {
+		// 在此寫入jQuery 跟css
+		?>
+	<style>
 /* 商品頁 */
 .bundled_item_optional {
 	padding-left: 30px;
@@ -322,5 +329,6 @@ function produce_bundles_ajax_request()
 	})
 })(jQuery)
 </script>
-<?php
-});
+		<?php
+	}
+);

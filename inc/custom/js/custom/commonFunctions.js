@@ -317,10 +317,12 @@ export const addToCart = async (data, nonce) => {
     url: r2_wcpa_data.env.ajaxUrl,
     data: {
       action: 'custom_handle_add_to_cart',
+      current_page_url: window.location.href,
       nonce,
       items: data,
     },
     success(res) {
+      console.log('🚀 ~ window.location.href', window.location.href)
       return res
     },
     error(error) {

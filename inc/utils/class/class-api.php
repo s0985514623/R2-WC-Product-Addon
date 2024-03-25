@@ -4,64 +4,65 @@ declare (strict_types = 1);
 
 namespace J7\WpMyAppPlugin\MyApp\Inc;
 
-class Api
-{
-    const POSTMETA_API_ENDPOINT = 'postmeta';
-    const AJAX_NONCE_ENDPOINT   = 'ajaxnonce';
+class Api {
 
-    function __construct()
-    {
-        foreach ([ self::POSTMETA_API_ENDPOINT, self::AJAX_NONCE_ENDPOINT ] as $action) {
-            \add_action('rest_api_init', [ $this, "register_{$action}_api" ]);
-        }
-    }
+	const POSTMETA_API_ENDPOINT = 'postmeta';
+	const AJAX_NONCE_ENDPOINT   = 'ajaxnonce';
 
-    public function postmeta_callback($request)
-    {
-        $post_id = $request[ 'id' ];
+	function __construct() {
+		foreach ( array( self::POSTMETA_API_ENDPOINT, self::AJAX_NONCE_ENDPOINT ) as $action ) {
+			\add_action( 'rest_api_init', array( $this, "register_{$action}_api" ) );
+		}
+	}
 
-        // 檢查文章是否存在
-        if (\get_post_status($post_id)) {
-            $post_meta           = \get_post_meta($post_id);
-            $formatted_post_meta = [  ];
-            foreach ($post_meta as $key => $value) {
-                $formatted_post_meta[ $key ] = $value[ 0 ];
-            }
+	public function postmeta_callback( $request ) {
+		$post_id = $request['id'];
 
-            // 在此處理 post_meta 資訊，你可以根據需要進行資料處理
+		// 檢查文章是否存在
+		if ( \get_post_status( $post_id ) ) {
+			$post_meta           = \get_post_meta( $post_id );
+			$formatted_post_meta = array();
+			foreach ( $post_meta as $key => $value ) {
+				$formatted_post_meta[ $key ] = $value[0];
+			}
 
-            return \rest_ensure_response($formatted_post_meta);
-        } else {
-            return new \WP_Error('post_not_found', '文章不存在', array('status' => 404));
-        }
-    }
+			// 在此處理 post_meta 資訊，你可以根據需要進行資料處理
 
-    public function register_postmeta_api()
-    {
-        $endpoint = self::POSTMETA_API_ENDPOINT;
-        \register_rest_route('wrp', "{$endpoint}/(?P<id>\d+)", array(
-            'methods'  => 'GET',
-            'callback' => [ $this, "{$endpoint}_callback" ],
-        ));
-    }
+			return \rest_ensure_response( $formatted_post_meta );
+		} else {
+			return new \WP_Error( 'post_not_found', '文章不存在', array( 'status' => 404 ) );
+		}
+	}
 
-    public function ajaxnonce_callback()
-    {
-        $ajaxNonce = \wp_create_nonce(Bootstrap::KEBAB);
+	public function register_postmeta_api() {
+		$endpoint = self::POSTMETA_API_ENDPOINT;
+		\register_rest_route(
+			'wrp',
+			"{$endpoint}/(?P<id>\d+)",
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, "{$endpoint}_callback" ),
+			)
+		);
+	}
 
-        return \rest_ensure_response($ajaxNonce);
+	public function ajaxnonce_callback() {
+		$ajaxNonce = \wp_create_nonce( Bootstrap::KEBAB );
 
-    }
+		return \rest_ensure_response( $ajaxNonce );
+	}
 
-    public function register_ajaxnonce_api()
-    {
-        $endpoint = self::AJAX_NONCE_ENDPOINT;
-        \register_rest_route('wrp', "{$endpoint}", array(
-            'methods'  => 'GET',
-            'callback' => [ $this, "{$endpoint}_callback" ],
-        ));
-    }
-
+	public function register_ajaxnonce_api() {
+		$endpoint = self::AJAX_NONCE_ENDPOINT;
+		\register_rest_route(
+			'wrp',
+			"{$endpoint}",
+			array(
+				'methods'  => 'GET',
+				'callback' => array( $this, "{$endpoint}_callback" ),
+			)
+		);
+	}
 }
 
 new Api();

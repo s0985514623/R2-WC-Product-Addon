@@ -1,10 +1,10 @@
 <?php
-//解構賦值 $args
+// 解構賦值 $args
 [
-    'product' => $product,
-    'meta'    => $meta,
- ] = $args;
-//解構賦值 $meta
+	'product' => $product,
+	'meta'    => $meta,
+] = $args;
+// 解構賦值 $meta
 [
 	'parentProductId' => $parent_product_id,
 	'productId'       => $product_id,
@@ -12,41 +12,41 @@
 	'salesPrice'      => $sales_price,
 ] = $meta;
 
-$img_id  = $product->get_image_id();
-$img_src = \wp_get_attachment_image_src($img_id, [ 450, 450 ]);
-$name    = $product->get_name();
-$permalink = get_permalink($product->get_id()).'?parentProductId='.$parent_product_id;
+$img_id    = $product->get_image_id();
+$img_src   = \wp_get_attachment_image_src( $img_id, array( 450, 450 ) );
+$name      = $product->get_name();
+$permalink = get_permalink( $product->get_id() ) . '?parentProductId=' . $parent_product_id;
 
 
 
-if (empty($regular_price) && empty($sales_price)) {
-    // 商品類型轉換時，才會發生這種情況
-    $regular_price = $product->get_regular_price();
-    $sales_price   = $product->get_sale_price();
+if ( empty( $regular_price ) && empty( $sales_price ) ) {
+	// 商品類型轉換時，才會發生這種情況
+	$regular_price = $product->get_regular_price();
+	$sales_price   = $product->get_sale_price();
 }
 
 $product_status = $product->get_status();
-if ($product_status === 'publish'):
-?>
+if ( $product_status === 'publish' ) :
+	?>
 <div class="simpleProduct productAddon py-5 px-[15px] grid grid-cols-5"
-	data-product_addon_id="<?=$product_id?>" data-parent_product_id="<?=$parent_product_id?>">
+	data-product_addon_id="<?php echo $product_id; ?>" data-parent_product_id="<?php echo $parent_product_id; ?>">
 	<div class="productAddonImg aspect-square w-full col-span-2 ">
-		<img src="<?=$img_src[ 0 ]?>" alt="<?=$name?>">
+		<img src="<?php echo $img_src[0]; ?>" alt="<?php echo $name; ?>">
 	</div>
 	<div class="productAddonInfo px-[15px] flex flex-col justify-between col-span-3 ">
 		<div class="flex flex-col gap-2">
-			<div class="productAddonTitle md:text-base text-sm"><a href="<?=$permalink?>"><?=$name?></a>
+			<div class="productAddonTitle md:text-base text-sm"><a href="<?php echo $permalink; ?>"><?php echo $name; ?></a>
 			</div>
 			<div class="text-sm productAddonPrice">
-				<?php if (!empty($sales_price)): ?>
+				<?php if ( ! empty( $sales_price ) ) : ?>
 				<span
-					class="tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px]">NT$<?=number_format($regular_price)?></span>
+					class="tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px]">NT$<?php echo number_format( $regular_price ); ?></span>
 				<span
-					class="tracking-normal text-[#4562A8] salesPrice">NT$<?=number_format($sales_price)?></span>
-				<?php else: ?>
+					class="tracking-normal text-[#4562A8] salesPrice">NT$<?php echo number_format( $sales_price ); ?></span>
+				<?php else : ?>
 				<span
-					class="tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px] salesPrice">NT$<?=number_format($regular_price)?></span>
-				<?php endif;?>
+					class="tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px] salesPrice">NT$<?php echo number_format( $regular_price ); ?></span>
+				<?php endif; ?>
 			</div>
 		</div>
 		<div
@@ -61,4 +61,4 @@ if ($product_status === 'publish'):
 		</div>
 	</div>
 </div>
-<?php endif;?>
+<?php endif; ?>

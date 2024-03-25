@@ -42,8 +42,9 @@ jQuery(document).ready(function ($) {
       ]
       getAjaxNonce().then(
         function (nonce) {
-          addToCart(data, nonce).then(function (res) {
-            $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
+          addToCart(data, nonce).then(function (_res) {
+            $(document.body).trigger('wc_update_cart')
+            // $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
           })
         },
         function (error) {
@@ -64,8 +65,9 @@ jQuery(document).ready(function ($) {
       ]
       getAjaxNonce().then(
         function (nonce) {
-          addToCart(data, nonce).then(function (res) {
-            $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
+          addToCart(data, nonce).then(function (_res) {
+            $(document.body).trigger('wc_update_cart')
+            // $(document.body).trigger('added_to_cart', [res.fragments, res.cart_hash])
           })
         },
         function (error) {

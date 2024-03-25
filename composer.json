@@ -16,6 +16,9 @@
     }
   ],
   "config": {
+    "platform": {
+      "php": "7.1.0"
+    },
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true
     }
@@ -26,8 +29,9 @@
     "lodash-php/lodash-php": "^0.0.7"
   },
   "require-dev": {
-    "wp-coding-standards/wpcs": "^2.3",
-    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.2"
+    "squizlabs/php_codesniffer": "@stable",
+    "wp-coding-standards/wpcs": "@stable",
+    "dealerdirect/phpcodesniffer-composer-installer": "@stable"
   },
   "scripts": {
     "lint": "phpcs"
