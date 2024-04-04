@@ -331,7 +331,15 @@ class Ajax {
 					\wp_send_json( $return );
 				}
 			}
-			// WooCommerce的函數，用於獲取更新後的fragments和cart_hash
+
+			// 當可以成功加入購物車時，如果有啟用r2-member-filter 套件,則調用CronNew::set_mail.
+			if ( class_exists( 'J7\WP_REACT_PLUGIN\React\Admin\CronNew' ) ) {
+				$user_id  = \get_current_user_id();
+				$cron_new = new \J7\WP_REACT_PLUGIN\React\Admin\CronNew();
+				$cron_new->set_mail( $user_id, $product_id );
+			}
+
+			// WooCommerce的函數，用於獲取更新後的fragments和cart_hash.
 			\WC_AJAX::get_refreshed_fragments();
 		} else {
 			$return = array(
