@@ -361,4 +361,21 @@ class Functions {
 					);
 		return $filteredProducts;
 	}
+	/**
+	 * Sanitize Array function
+	 *
+	 * @param mixed $value The value to be sanitized.
+	 * @return mixed The sanitized value.
+	 */
+	public static function recursive_sanitize_text_fields( $value ) {
+		if ( is_array( $value ) ) {
+			// 如果是数组，递归调用当前函数.
+			return array_map( array( static::class, 'recursive_sanitize_text_fields' ), $value );
+		} elseif ( is_string( $value ) ) {
+			// 如果是字符串，使用sanitize_text_field清理.
+			return sanitize_text_field( $value );
+		}
+		// 如果是其他类型，直接返回原值（不处理）.
+		return $value;
+	}
 }
