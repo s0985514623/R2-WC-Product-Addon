@@ -18,6 +18,7 @@
 namespace J7\WpMyAppPlugin\MyApp\Inc;
 
 use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+
 if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 	/**
 		 * Class Plugin
@@ -42,6 +43,7 @@ if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 
 			// 整入舊得bundle代碼
 			require_once __DIR__ . '/inc/custom/bundles/php/produce-bundles.php';
+			\add_action( 'plugins_loaded', array( $this, 'plugins_loaded' ) );
 
 			$this->plugin_update_checker();
 		}
@@ -66,6 +68,16 @@ if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 			// $update_checker->setAuthentication(self::$github_pat);
 			$update_checker->getVcsApi()->enableReleaseAssets();
 		}
+		/**
+		 * Check required plugins
+		 *
+		 * @return void
+		 */
+		public function plugins_loaded() {
+			$bootstrap = new Bootstrap();
+			$bootstrap->init();
+		}
+
 
 		/**
 		 * Instance
@@ -79,11 +91,5 @@ if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 			return self::$instance;
 		}
 	}
-	// require_once __DIR__ . '/vendor/autoload.php';
-	// require_once __DIR__ . '/inc/admin.php';
-
-	// // 整入舊得bundle代碼
-	// require_once __DIR__ . '/inc/custom/bundles/php/produce-bundles.php';
-
 	Plugin::instance();
 }
