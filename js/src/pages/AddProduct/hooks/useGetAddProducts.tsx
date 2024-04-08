@@ -42,8 +42,8 @@ const useGetAddProducts = (shop_meta_product_ids: number[]) => {
     },
   })
 
-  const products = (productsResult?.data || []) as TProduct[]
-  console.log('🚀 ~ productsResult:', productsResult)
+  const products = (productsResult?.data?.data || []) as TProduct[]
+  // console.log('🚀 ~ productsResult:', productsResult)
 
   useEffect(() => {
     if (!productsResult.isLoading && productsResult.isSuccess) {
@@ -54,7 +54,7 @@ const useGetAddProducts = (shop_meta_product_ids: number[]) => {
             resource: `products/${product?.id}/variations`,
             dataProvider: 'wc',
             args: {
-per_page: 100,
+              per_page: '100',
             },
           })
           const productVariations: TProductVariation[] = productVariationsResult?.data ?? []
