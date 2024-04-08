@@ -66,7 +66,7 @@ final class Bootstrap {
 		}
 
 		Vite\enqueue_asset(
-			dirname( __DIR__ ) . '/js/dist',
+			Plugin::$dir . '/js/dist',
 			'js/src/main.tsx',
 			array(
 				'handle'    => self::KEBAB,

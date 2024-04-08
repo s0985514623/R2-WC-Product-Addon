@@ -26,7 +26,19 @@ if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 	final class Plugin {
 		const KEBAB       = 'r2-wc-product-addon';
 		const GITHUB_REPO = 'https://github.com/s0985514623/R2-WC-Product-Addon';
+		/**
+		 * Plugin Directory
+		 *
+		 * @var string
+		 */
+		public static $dir;
 
+		/**
+		 * Plugin URL
+		 *
+		 * @var string
+		 */
+		public static $url;
 		/**
 		 * Instance
 		 *
@@ -74,6 +86,8 @@ if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 		 * @return void
 		 */
 		public function plugins_loaded() {
+			self::$dir = \untrailingslashit( \wp_normalize_path( \plugin_dir_path( __FILE__ ) ) );
+			self::$url = \untrailingslashit( \plugin_dir_url( __FILE__ ) );
 			$bootstrap = new Bootstrap();
 			$bootstrap->init();
 		}
