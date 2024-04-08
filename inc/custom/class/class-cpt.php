@@ -6,7 +6,7 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 
 use J7\WpMyAppPlugin\MyApp\Inc\Bootstrap;
 
-class CPT {
+final class CPT {
 
 	public $post_type  = '';
 	public $post_metas = array();
@@ -96,9 +96,9 @@ class CPT {
 	public function save_metabox( $post_id, $post ) {
 
 		/*
-		 * We need to verify this came from the our screen and with proper authorization,
-		 * because save_post can be triggered at other times.
-		 */
+		* We need to verify this came from the our screen and with proper authorization,
+		* because save_post can be triggered at other times.
+		*/
 
 		// Check if our nonce is set.
 		if ( ! isset( $_POST['_wpnonce'] ) ) {
@@ -108,9 +108,9 @@ class CPT {
 		$nonce = $_POST['_wpnonce'];
 
 		/*
-		 * If this is an autosave, our form has not been submitted,
-		 * so we don't want to do anything.
-		 */
+		* If this is an autosave, our form has not been submitted,
+		* so we don't want to do anything.
+		*/
 		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
 			return $post_id;
 		}

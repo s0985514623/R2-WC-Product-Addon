@@ -6,7 +6,7 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 
 use J7\WpMyAppPlugin\MyApp\Inc\Bootstrap;
 
-class ShortCode {
+final class ShortCode {
 
 
 	function __construct( $shortcode = '' ) {

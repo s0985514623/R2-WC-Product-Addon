@@ -95,7 +95,7 @@ if ( $product_status === 'publish' ) :
 		<div class="productAddonName text-xl text-[#4562A8] font-bold mb-4"><?php echo $name; ?></div>
 		<table class="font-bold text-base">
 			<tbody>
-				<?php foreach ( $variationAttributes as $label => $valueArray ) : ?>
+	<?php foreach ( $variationAttributes as $label => $valueArray ) : ?>
 				<tr>
 					<th class="border-0">
 						<label class="text-nowrap" for="<?php echo $label; ?>"><?php echo \wc_attribute_label( $label ); ?></label>
@@ -103,10 +103,10 @@ if ( $product_status === 'publish' ) :
 					<td class="border-0">
 						<select class="" data-label_key="<?php echo $label; ?>">
 							<option value="">請選取一個選項</option>
-							<?php foreach ( $valueArray as $value ) : ?>
+		<?php foreach ( $valueArray as $value ) : ?>
 							<option value="<?php echo urldecode( $value ); ?>"
-								<?php echo ! empty( $default_attributes ) && $default_attributes->$label == urldecode( $value ) ? 'selected' : 'none'; ?>>
-								<?php echo urldecode( $value ); ?></option>
+			<?php echo ! empty( $default_attributes ) && $default_attributes->$label == urldecode( $value ) ? 'selected' : 'none'; ?>>
+			<?php echo urldecode( $value ); ?></option>
 
 							<?php endforeach; ?>
 						</select>
@@ -122,10 +122,10 @@ if ( $product_status === 'publish' ) :
 		<div class="productAddonPrice">
 			<div class="flex flex-wrap text-xl text-[#4562A8] font-bold gap-2">
 
-				<?php if ( $max === $min && ! empty( $min ) ) : ?>
-					<?php if ( $max === $max_regular_price ) : ?>
+	<?php if ( $max === $min && ! empty( $min ) ) : ?>
+		<?php if ( $max === $max_regular_price ) : ?>
 				<span class="mb-0 mt-1 salesPrice" data-original_price="<?php echo number_format( $min ); ?>">NT$
-						<?php echo number_format( $min ); ?>
+			<?php echo number_format( $min ); ?>
 				</span>
 				<?php else : ?>
 				<span class="mb-0 mt-1 opacity-50 regularPrice"

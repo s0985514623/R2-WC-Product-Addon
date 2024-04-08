@@ -12,7 +12,7 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 /**
  * AJAX class
  */
-class Ajax {
+final class Ajax {
 	const GET_POST_META_ACTION    = 'addon_handle_get_post_meta';
 	const UPDATE_POST_META_ACTION = 'addon_handle_update_post_meta';
 	// 只在cart_page使用.
@@ -280,16 +280,16 @@ class Ajax {
 							return $v['productId'] == $product_id;
 						}
 					);
-						$product_array   = reset( $product_array );
-						$product_type    = $product_array['productType'] ?? '';
+					$product_array       = reset( $product_array );
+					$product_type        = $product_array['productType'] ?? '';
 					if ( 'variable' === $product_type ) {
-						$product_price     = array_filter(
+						$product_price = array_filter(
 							$product_array['variations'],
 							function ( $v ) use ( $variation_id ) {
 								return $v['variationId'] == $variation_id;
 							}
 						) ?? null;
-							$product_price = reset( $product_price )['salesPrice'];
+						$product_price = reset( $product_price )['salesPrice'];
 					} elseif ( 'simple' === $product_type ) {
 						$product_price = $product_array['salesPrice'] ?? null;
 					}

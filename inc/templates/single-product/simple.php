@@ -37,7 +37,7 @@ if ( $product_status === 'publish' ) :
 		<div class="productAddonName text-xl text-[#4562A8] font-bold mb-4"><?php echo $name; ?></div>
 		<div class="productAddonPrice">
 			<div class="flex flex-wrap text-xl text-[#4562A8] font-bold gap-2">
-				<?php if ( ! empty( $sales_price ) ) : ?>
+	<?php if ( ! empty( $sales_price ) ) : ?>
 				<span class="mb-0 mt-1 opacity-50"><del>NT$ <?php echo number_format( $regular_price ); ?></del></span>
 				<span class="mb-0 mt-1 salesPrice">NT$ <?php echo number_format( $sales_price ); ?></span>
 				<?php else : ?>

@@ -38,7 +38,7 @@ if ( $product_status === 'publish' ) :
 			<div class="productAddonTitle md:text-base text-sm"><a href="<?php echo $permalink; ?>"><?php echo $name; ?></a>
 			</div>
 			<div class="text-sm productAddonPrice">
-				<?php if ( ! empty( $sales_price ) ) : ?>
+	<?php if ( ! empty( $sales_price ) ) : ?>
 				<span
 					class="tracking-normal text-[#4562A8] opacity-50 line-through mr-[3px]">NT$<?php echo number_format( $regular_price ); ?></span>
 				<span

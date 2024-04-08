@@ -6,7 +6,7 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 
 use Kucrut\Vite;
 
-class Bootstrap {
+final class Bootstrap {
 
 	const PLUGIN_DIR  = __DIR__ . '/../';
 	const APP_NAME    = 'R2 WCPA';

@@ -7,7 +7,7 @@ namespace J7\WpMyAppPlugin\MyApp\Inc;
 use function _\find;
 use J7\WpMyAppPlugin\MyApp\Inc\Bootstrap;
 
-class Functions {
+final class Functions {
 
 	/**
 	 * Register CPT
@@ -130,7 +130,7 @@ class Functions {
 		// $products = array_map(__NAMESPACE__ . "\get_product_data", $shop_meta);
 
 		// 新的寫法 但用static可以考慮實際調用的類別=>這個會比較好,因為考慮到繼承
-		$products = array_map( array( static::class, 'get_product_data' ), $shop_meta );
+		$products = array_map( array( self::class, 'get_product_data' ), $shop_meta );
 		// 用self會依照實際調用的類別,如果方法是在父類別被定義,則會使用父類別的方法
 		// $products = array_map(array('self', 'get_product_data'), $shop_meta);
 
@@ -219,13 +219,13 @@ class Functions {
 			return $attributes;
 		}
 	}
-		/**
-		 * 檢查 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
-		 * 如果不一致，就更新 shop_meta 裡面的 data
-		 *
-		 * @param array $shop_meta
-		 * @return array
-		 */
+	/**
+	 * 檢查 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
+	 * 如果不一致，就更新 shop_meta 裡面的 data
+	 *
+	 * @param array $shop_meta
+	 * @return array
+	 */
 	public static function handleShopMeta( array $shop_meta ): array {
 		$need_update = false;
 		// 檢查當前的 shop_meta 裡面的商品與 woocommerce 裡面的商品是否 type 一致
@@ -352,13 +352,13 @@ class Functions {
 			}
 		}
 		// 篩選=>從B陣列中提取id值
-					$idsInB           = array_column( $arr2, 'product_id' );
-					$filteredProducts = array_filter(
-						$filteredProducts,
-						function ( $v ) use ( $idsInB ) {
-							return ! in_array( $v['meta']['productId'], $idsInB );
-						}
-					);
+		$idsInB           = array_column( $arr2, 'product_id' );
+		$filteredProducts = array_filter(
+			$filteredProducts,
+			function ( $v ) use ( $idsInB ) {
+				return ! in_array( $v['meta']['productId'], $idsInB );
+			}
+		);
 		return $filteredProducts;
 	}
 	/**
@@ -370,7 +370,7 @@ class Functions {
 	public static function recursive_sanitize_text_fields( $value ) {
 		if ( is_array( $value ) ) {
 			// 如果是数组，递归调用当前函数.
-			return array_map( array( static::class, 'recursive_sanitize_text_fields' ), $value );
+			return array_map( array( self::class, 'recursive_sanitize_text_fields' ), $value );
 		} elseif ( is_string( $value ) ) {
 			// 如果是字符串，使用sanitize_text_field清理.
 			return sanitize_text_field( $value );

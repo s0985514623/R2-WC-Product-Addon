@@ -4,7 +4,7 @@ declare (strict_types = 1);
 
 namespace J7\WpMyAppPlugin\MyApp\Inc;
 
-class Api {
+final class Api {
 
 	const POSTMETA_API_ENDPOINT = 'postmeta';
 	const AJAX_NONCE_ENDPOINT   = 'ajaxnonce';
