@@ -26,7 +26,8 @@
   "require": {
     "kucrut/vite-for-wp": "^0.5.2",
     "usefulteam/jwt-auth": "^2.1",
-    "lodash-php/lodash-php": "^0.0.7"
+    "lodash-php/lodash-php": "^0.0.7",
+    "yahnis-elsts/plugin-update-checker": "^5.3"
   },
   "require-dev": {
     "squizlabs/php_codesniffer": "@stable",
