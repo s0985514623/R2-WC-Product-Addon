@@ -2,6 +2,7 @@
 /**
  *
  * bundle assigned directory to a zip file
+ *
  * @see https://www.npmjs.com/package/archiver
  */
 
@@ -20,9 +21,7 @@ const archive = archiver('zip', {
 })
 
 output.on('close', function () {
-  console.log(
-    `📦 Total Size: ${Math.round((archive.pointer() * 100) / 1024 / 1024) / 100} MB`,
-  )
+  console.log(`📦 Total Size: ${Math.round((archive.pointer() * 100) / 1024 / 1024) / 100} MB`)
 })
 
 // 監聽錯誤事件

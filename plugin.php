@@ -68,7 +68,7 @@ if ( ! \class_exists( 'J7\WpMyAppPlugin\MyApp\Inc\Plugin' ) ) {
 			$update_checker = PucFactory::buildUpdateChecker(
 				self::GITHUB_REPO,
 				__FILE__,
-				self::KEBAB
+				self::KEBAB . '-release'
 			);
 			/**
 			 * Type
