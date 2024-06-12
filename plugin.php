@@ -4,7 +4,7 @@
  * Description: WC 商品加購功能外掛,整合AJAX加入購物車,及product bundle套件客製化功能
  * Author URI: https://github.com/s0985514623
  * License: GPLv2
- * Version: 1.2.14
+ * Version: 1.2.15
  * Requires PHP: 7.4.0
  */
 
