@@ -322,7 +322,7 @@ export const addToCart = async (data, nonce) => {
       items: data,
     },
     success(res) {
-      console.log('🚀 ~ window.location.href', window.location.href)
+      // console.log('🚀 ~ window.location.href', window.location.href)
       return res
     },
     error(error) {

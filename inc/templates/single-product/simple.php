@@ -5,10 +5,6 @@
 	'meta'    => $meta,
 ] = $args;
 
-$img_id  = $product->get_image_id();
-$img_src = \wp_get_attachment_image_src( $img_id, array( 450, 450 ) );
-$name    = $product->get_name();
-
 // 解構賦值 $meta
 [
 	'parentProductId' => $parent_product_id,
@@ -16,6 +12,13 @@ $name    = $product->get_name();
 	'regularPrice'    => $regular_price,
 	'salesPrice'      => $sales_price,
 ] = $meta;
+
+$img_id    = $product->get_image_id();
+$img_src   = \wp_get_attachment_image_src( $img_id, array( 450, 450 ) );
+$name      = $product->get_name();
+$permalink = get_permalink( $product->get_id() ) . '?parentProductId=' . $parent_product_id;
+
+
 
 if ( empty( $regular_price ) && empty( $sales_price ) ) {
 	// 商品類型轉換時，才會發生這種情況
@@ -34,7 +37,7 @@ if ( $product_status === 'publish' ) :
 			src="<?php echo $img_src[0]; ?>" alt="<?php echo $name; ?>">
 	</div>
 	<div class="productAddonInfo w-4/5 pl-6">
-		<div class="productAddonName text-xl text-[#4562A8] font-bold mb-4"><?php echo $name; ?></div>
+		<div class="productAddonName text-xl  font-bold mb-4"><a class="!text-[#4562A8]" href="<?php echo $permalink; ?>"><?php echo $name; ?></a></div>
 		<div class="productAddonPrice">
 			<div class="flex flex-wrap text-xl text-[#4562A8] font-bold gap-2">
 	<?php if ( ! empty( $sales_price ) ) : ?>

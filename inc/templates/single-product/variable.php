@@ -6,19 +6,20 @@ use J7\WpMyAppPlugin\MyApp\Inc\Functions;
 	'meta'                => $meta,
 	'variationAttributes' => $variationAttributes,
 ] = $args;
-
-// 以防如果沒有變體屬性，賦予空陣列
-$variationAttributes = $variationAttributes ?? array();
-$img_id              = $product->get_image_id();
-$img_src             = \wp_get_attachment_image_src( $img_id, array( 450, 450 ) );
-$name                = $product->get_name();
-
 // 解構賦值 $meta
 [
 	'parentProductId' => $parent_product_id,
 	'productId'       => $product_addon_id,
 	'variations'      => $variations,
-]                  = $meta;
+] = $meta;
+// 以防如果沒有變體屬性，賦予空陣列
+$variationAttributes = $variationAttributes ?? array();
+$img_id              = $product->get_image_id();
+$img_src             = \wp_get_attachment_image_src( $img_id, array( 450, 450 ) );
+$name                = $product->get_name();
+$permalink           = get_permalink( $product->get_id() ) . '?parentProductId=' . $parent_product_id;
+
+
 $price_arr         = array();
 $regular_price_arr = array();
 $variation_arr     = array();
@@ -92,7 +93,7 @@ if ( $product_status === 'publish' ) :
 			src="<?php echo $img_src[0]; ?>" alt="<?php echo $name; ?>">
 	</div>
 	<div class="productAddonInfo w-4/5 pl-6">
-		<div class="productAddonName text-xl text-[#4562A8] font-bold mb-4"><?php echo $name; ?></div>
+		<div class="productAddonName text-xl font-bold mb-4"><a class="!text-[#4562A8]" href="<?php echo $permalink; ?>"><?php echo $name; ?></a></div>
 		<table class="font-bold text-base">
 			<tbody>
 	<?php foreach ( $variationAttributes as $label => $valueArray ) : ?>

@@ -29,7 +29,7 @@ const AddProduct = () => {
   const shop_meta_product_ids = shop_meta.map((item) => item.productId)
 
   const productsResult = useGetAddProducts(shop_meta_product_ids)
-
+  // console.log('🚀 ~ productsResult:', productsResult)
   const [addedProducts, setAddedProducts] = useAtom(addedProductsAtom)
 
   const [form] = Form.useForm()
